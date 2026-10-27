@@ -57,7 +57,7 @@ const seedPhrases = <List<String>>[
   ["Health", "I need medicine", "Qoricha nan barbaada", "መድኃኒት እፈልጋለሁ"],
   ["Emergency", "Help!", "Na gargaaraa!", "እርዱኝ!"],
   ["Emergency", "Call the police", "Poolisii waami", "ፖሊስ ጥራ"],
-  ["Emergency", "Fire!", "Ibiddi!", "እሳት!"],
+  ["Emergency", "Fire!", "Ibidda!", "እሳት!"],
   ["Numbers", "Six, seven, eight", "Jaha, torba, saddeet", "ስድስት፣ ሰባት፣ ስምንት"],
   ["Numbers", "Nine, ten", "Sagal, kudhan", "ዘጠኝ፣ አሥር"],
   ["Time", "Yesterday", "Kaleessa", "ትናንት"],
