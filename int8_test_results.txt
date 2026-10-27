@@ -1,0 +1,29 @@
+=== FP32 ===
+Good morning -> Ganama ganama   (0.11s)
+Thank you very much -> Galatoomi   (0.08s)
+How are you? -> Akkamitti?   (0.18s)
+What is your name? -> Maqaankee maalidha?   (0.06s)
+Where is the hospital? -> hospitaala kan jiran eessaati?   (0.16s)
+How much is this? -> Kun hammam taʼuu dandaʼa?   (0.19s)
+I need help -> Gargaarsa na barbaachisu   (0.10s)
+I am sick -> Ani dhibee fayyaatiinan qabame   (0.17s)
+Where does it hurt? -> Maaltu miidhaa geessisa?   (0.15s)
+Please speak slowly -> suuta jedhaa taʼaa   (0.13s)
+I do not understand -> Ani garuu hin beekun ture   (0.15s)
+See you tomorrow -> Waaʼee borii Hin yaaddaʼinaa   (0.14s)
+TOTAL 1.6s
+
+=== INT8 ===
+Good morning -> Ganama ganama   (0.05s)
+Thank you very much -> Caalaatti si galateeffanna   (0.02s)
+How are you? -> Akkamitti?   (0.04s)
+What is your name? -> Maqaankee maalidha?   (0.04s)
+Where is the hospital? -> hospitaala kan jiran eessaati?   (0.07s)
+How much is this? -> Kun hammam taʼa?   (0.04s)
+I need help -> Gargaarsa na barbaachisu   (0.04s)
+I am sick -> Ani dhibee fayyaatiinan qabame   (0.05s)
+Where does it hurt? -> Maaltu miidhaa geessisa?   (0.06s)
+Please speak slowly -> suuta jedhaa taʼaa   (0.04s)
+I do not understand -> Ani garuu hin beekun ture   (0.05s)
+See you tomorrow -> Waaʼee borii Hin yaaddaʼinaa   (0.08s)
+TOTAL 0.6s
