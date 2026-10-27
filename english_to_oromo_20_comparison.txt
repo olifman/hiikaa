@@ -1,0 +1,82 @@
+ENGLISH -> AFAAN OROMOO MODEL COMPARISON
+
+01. English: Thank you.
+TranslatePsy: Akkasitti galatoomi.
+NLLB: Galata isiniif.
+
+02. English: How are you?
+TranslatePsy: Afaan Oromoo: Haayyoo?
+NLLB: Akkam jirtu?
+
+03. English: How are you today?
+TranslatePsy: Afaan Oromoo: "Haa ta'u malee?"
+NLLB: Yeroo har'aa akkamitti jirta?
+
+04. English: I need water.
+TranslatePsy: Bishaan na barbaachisa.
+NLLB: Bishaan barbaada.
+
+05. English: I want to learn Afaan Oromo.
+TranslatePsy: Afaan Oromoo barachuu nan barbaada.
+NLLB: Afaan Oromo baruu nan barbaada.
+
+06. English: I am learning English.
+TranslatePsy: Ani Afaan Ingilizii barachaa jira.
+NLLB: Ingiliffa baradheera.
+
+07. English: I am learning Afaan Oromo.
+TranslatePsy: Afaan Oromoo barachaa jira.
+NLLB: Afaan Oromo baradheera.
+
+08. English: I will go to school tomorrow.
+TranslatePsy: Bor yaa'aa mana barumsaatti deema.
+NLLB: Ganama mana barumsaatti nan deema.
+
+09. English: I am going to school today.
+TranslatePsy: Har'a gara mana barumsaa deemaa jira.
+NLLB: Har'a mana barumsaatti nan dhaqa.
+
+10. English: The teacher speaks Afaan Oromo.
+TranslatePsy: Manni barumsaa Afaan Oromoo dubbata.
+NLLB: Barsiisaan Afaan Oromo dubbata.
+
+11. English: The teacher speaks English.
+TranslatePsy: Manni barumsaa Afaan Ingilizii dubbata.
+NLLB: Barsiistuun Ingiliffa dubbata.
+
+12. English: We are learning Afaan Oromo.
+TranslatePsy: Afaan Oromoo barachaa jirra.
+NLLB: Afaan Oromo baranna.
+
+13. English: She goes to school.
+TranslatePsy: She goes to school. (She goes to school.)
+NLLB: Isheen mana barumsaa deema.
+
+14. English: He reads a book.
+TranslatePsy: Kitaaba tokko dubbisa.
+NLLB: Inni kitaaba dubbisa.
+
+15. English: I am a student.
+TranslatePsy: Ani barataa dha.
+NLLB: Ani barattuu.
+
+16. English: I am a teacher.
+TranslatePsy: Ani barsiisaa dha.
+NLLB: Ani barsiisaa dha.
+
+17. English: I have work today.
+TranslatePsy: Har'a hojii qaba.
+NLLB: Har'a hojii qaba.
+
+18. English: I will see you tomorrow.
+TranslatePsy: Boruu nan argu.
+NLLB: Boruma sana si argu.
+
+19. English: Please help me.
+TranslatePsy: Maal jira?
+NLLB: Na gargaaraa.
+
+20. English: I need food.
+TranslatePsy: Nyaata barbaada.
+NLLB: Nyaata nan barbaada.
+

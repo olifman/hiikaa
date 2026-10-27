@@ -1,0 +1,82 @@
+TRANSLATEPSY vs NLLB: 20 SENTENCE TEST
+
+01. [EN>OM] Thank you.
+TranslatePsy: Afaan Oromoo: Galatoomi.
+NLLB: Galata isiniif.
+
+02. [EN>OM] How are you?
+TranslatePsy: Afaan Oromoo: Haay?
+NLLB: Akkam jirtu?
+
+03. [EN>OM] How are you today?
+TranslatePsy: Har'a akkam jirtu?
+NLLB: Yeroo har'aa akkamitti jirta?
+
+04. [EN>OM] I need water.
+TranslatePsy: Bishaan na barbaachisa.
+NLLB: Bishaan barbaada.
+
+05. [EN>OM] I want to learn Afaan Oromo.
+TranslatePsy: Afaan Oromoo barachuu nan barbaada.
+NLLB: Afaan Oromo baruu nan barbaada.
+
+06. [EN>OM] I am learning English.
+TranslatePsy: Afaan Oromoo barachaa jira.
+NLLB: Ingiliffa baradheera.
+
+07. [EN>OM] I am learning Afaan Oromo.
+TranslatePsy: Afaan Oromoo nan baradha.
+NLLB: Afaan Oromo baradheera.
+
+08. [EN>OM] I will go to school tomorrow.
+TranslatePsy: Kallattiin mana barumsaa dhaqa.
+NLLB: Ganama mana barumsaatti nan deema.
+
+09. [EN>OM] I am going to school today.
+TranslatePsy: Har'a mana barumsaa dhaquufan jira.
+NLLB: Har'a mana barumsaatti nan dhaqa.
+
+10. [EN>OM] The teacher speaks Afaan Oromo.
+TranslatePsy: Manni barumsaa Afaan Oromoo dubbata.
+NLLB: Barsiisaan Afaan Oromo dubbata.
+
+11. [OM>EN] Galatoomi.
+TranslatePsy: Thank you.
+NLLB: Thank you.
+
+12. [OM>EN] Akkam jirtu?
+TranslatePsy: Hello! How are you?
+NLLB: How are you?
+
+13. [OM>EN] Ani bishaan nan barbaada.
+TranslatePsy: I want to know.
+NLLB: I need water.
+
+14. [OM>EN] Ani Afaan Oromoo barachaa jira.
+TranslatePsy: I am learning the Oromo language.
+NLLB: I am learning English.
+
+15. [OM>EN] Ani Afaan Ingilizii barachaa jira.
+TranslatePsy: I am learning English.
+NLLB: I am learning English.
+
+16. [OM>EN] Boru gara mana barumsaa nan deema.
+TranslatePsy: I'm going to go to school tomorrow.
+NLLB: I go to school in the morning.
+
+17. [OM>EN] Har'a gara mana barumsaa nan deema.
+TranslatePsy: I am going to school tomorrow.
+NLLB: I'm going to school today.
+
+18. [OM>EN] Barsiisaan koo Afaan Oromoo dubbata.
+TranslatePsy: My teacher speaks Oromo language.
+NLLB: My teacher speaks English.
+
+19. [OM>EN] Nuti Afaan Oromoo baranna.
+TranslatePsy: We speak Oromo language.
+NLLB: We learn the language.
+
+20. [OM>EN] Isheen mana barumsaa deemti.
+TranslatePsy: Isheen mana barumsaa deemti.
+NLLB: She goes to school.
+

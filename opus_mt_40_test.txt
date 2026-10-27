@@ -1,0 +1,120 @@
+EN>OM 01. Thank you.
+OPUS-MT: Galatoomi.
+
+EN>OM 02. How are you?
+OPUS-MT: Akkamitti?
+
+EN>OM 03. How are you today?
+OPUS-MT: Yeroo harʼaa akkamitti tajaajilaa jirta?
+
+EN>OM 04. I need water.
+OPUS-MT: Bishaan na barbaachisa.
+
+EN>OM 05. I want to learn Afaan Oromo.
+OPUS-MT: Saʼaatii 39 tti immoo, bakka kanatti waaʼee kanaa barachuun barbaada.
+
+EN>OM 06. I am learning English.
+OPUS-MT: Afaan Ingiliffaa barachaan jira.
+
+EN>OM 07. I am learning Afaan Oromo.
+OPUS-MT: Bakka kanatti saʼaatii dheeraa kanan baradhu siʼa taʼu, achittis nan baradhe.
+
+EN>OM 08. I will go to school tomorrow.
+OPUS-MT: Mana barumsaa galuun qaba.
+
+EN>OM 09. I am going to school today.
+OPUS-MT: Yeroo harʼaa mana barumsaa galuun qaba.
+
+EN>OM 10. The teacher speaks Afaan Oromo.
+OPUS-MT: Barsiisaan kun waaʼee saʼaatii dheeraa kan dubbatu siʼa taʼu, waaʼee kanaa ibsa.
+
+EN>OM 11. The teacher speaks English.
+OPUS-MT: Barsiisaan kun Ingiliffa dubbata.
+
+EN>OM 12. We are learning Afaan Oromo.
+OPUS-MT: Bakka kanatti saʼaatii 3 ffaa kan barannu siʼa taʼu, achittis waaʼee kanaa barachaa jirra.
+
+EN>OM 13. She goes to school.
+OPUS-MT: Sana booda mana barumsaa dhaqxe.
+
+EN>OM 14. He reads a book.
+OPUS-MT: Kitaaba dubbisuu jalqabe.
+
+EN>OM 15. I am a student.
+OPUS-MT: Ani barataan ture.
+
+EN>OM 16. I am a teacher.
+OPUS-MT: Ani barsiisaadha.
+
+EN>OM 17. I have work today.
+OPUS-MT: Yeroo harʼaa hojii qaba.
+
+EN>OM 18. I will see you tomorrow.
+OPUS-MT: Ani waaʼee kee nan arga.
+
+EN>OM 19. Please help me.
+OPUS-MT: Maaloo na gargaari.
+
+EN>OM 20. I need food.
+OPUS-MT: Nyaata argachuun barbaada.
+
+OM>EN 01. Galatoomi.
+OPUS-MT: Thank you.
+
+OM>EN 02. Akkam jirta?
+OPUS-MT: What about you?
+
+OM>EN 03. Akkam jirtu?
+OPUS-MT: WHAT do you think?
+
+OM>EN 04. Ani bishaan nan barbaada.
+OPUS-MT: I want water.
+
+OM>EN 05. Ani Afaan Oromoo barachaa jira.
+OPUS-MT: I Am With You All the Days, " in the New World Translation of the Holy Scriptures.
+
+OM>EN 06. Ani Afaan Ingilizii barachaa jira.
+OPUS-MT: I am learning English.
+
+OM>EN 07. Boru gara mana barumsaa nan deema.
+OPUS-MT: I walk to school.
+
+OM>EN 08. Har'a gara mana barumsaa nan deema.
+OPUS-MT: Today, I go to school.
+
+OM>EN 09. Kaleessa mana barumsaa deeme.
+OPUS-MT: A mature brother went to school.
+
+OM>EN 10. Barsiisaan koo Afaan Oromoo dubbata.
+OPUS-MT: My teacher claims in the New World Translation.
+
+OM>EN 11. Barsiisaan koo Afaan Ingilizii dubbata.
+OPUS-MT: My teacher spoke English.
+
+OM>EN 12. Nuti Afaan Oromoo baranna.
+OPUS-MT: For Our Young People, see the book What Does the Bible Really Teach?
+
+OM>EN 13. Isheen mana barumsaa deemti.
+OPUS-MT: She would go to school.
+
+OM>EN 14. Inni kitaaba dubbisa.
+OPUS-MT: He read the book.
+
+OM>EN 15. Ani barataa dha.
+OPUS-MT: I am a disciple.
+
+OM>EN 16. Ani barsiisaa dha.
+OPUS-MT: I am a teacher.
+
+OM>EN 17. Har'a hojii qaba.
+OPUS-MT: Today, he has work to do.
+
+OM>EN 18. Boru si nan arga.
+OPUS-MT: I see you.
+
+OM>EN 19. Maaloo na gargaari.
+OPUS-MT: Please help me.
+
+OM>EN 20. Ani nyaata nan barbaada.
+OPUS-MT: I want food.
+

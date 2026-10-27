@@ -1,0 +1,60 @@
+[EN -> OM] Thank you.
+  -> Dhugumatti, siif salaata. Nutis isinitti gammachuu qabna!
+
+[EN -> OM] How are you?
+  -> Maal naaf jira? Akka maaltu sitti jiru.
+
+[EN -> OM] I need water.
+  -> Natti fakkaata. I need water ,
+
+[EN -> OM] I want to learn Afaan Oromo.
+  -> I want to learn Afaan Oromoo. Akkasumas, akka afaan tokkotti barachuu barbaaddaadha!
+
+[EN -> OM] I am learning English.
+  -> I am learning English. Afaan Ingiliffaan baradheeraa jiraadha,
+
+[EN -> OM] I will go to school tomorrow.
+  -> Haaluma kanaan, guyyaa har’aa mana barnootaatti deebiya.
+
+[EN -> OM] I am going to school today.
+  -> Har’a mana barnootaatti deebiya. har'aa gara yunivarsiitii deemuu dhaamsiseera,
+
+[EN -> OM] The teacher speaks Afaan Oromo.
+  -> Dubartiin Afaan Oromoo dubbata. Gaaffii tokko yoo kaase, deebiin isaa afaan Amaaraadha; ergaan immoo barreessaa dha (English).
+
+[EN -> OM] Please help me.
+  -> Na gargaara.
+
+[EN -> OM] I need food.
+  -> Kan hin qabnee fi kan itti fayyadamu. I need food ,
+
+[OM -> EN] Galatoomi.
+  -> Galatoomi.
+
+[OM -> EN] Akkam jirtu?
+  -> How do you live?
+
+[OM -> EN] Ani bishaan nan barbaada.
+  -> I need some water.
+
+[OM -> EN] Ani Afaan Oromoo barachaa jira.
+  -> I am studying Oromo. It is my mother tongue, but it's not a language that you can speak easily in your daily life
+
+[OM -> EN] Ani Afaan Ingilizii barachaa jira.
+  -> I am studying English.
+
+[OM -> EN] Boru gara mana barumsaa nan deema.
+  -> I was given a bus to go home from school.
+
+[OM -> EN] Har'a gara mana barumsaa nan deema.
+  -> He helped me to get back home from school.
+
+[OM -> EN] Barsiisaan koo Afaan Oromoo dubbata.
+  -> My teacher speaks Oromo.
+
+[OM -> EN] Maaloo na gargaari.
+  -> Help us in the battle of Maaloula.
+
+[OM -> EN] Ani nyaata nan barbaada.
+  -> I need food.
+

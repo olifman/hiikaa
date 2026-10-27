@@ -1,0 +1,122 @@
+NLLB DECODING COMPARISON
+
+Original: Thank you.
+Setting: beams=1, length_penalty=1.0
+Translation: Galatoomi.
+
+Original: Thank you.
+Setting: beams=4, length_penalty=1.0
+Translation: Galata isiniif.
+
+Original: Thank you.
+Setting: beams=4, length_penalty=1.2
+Translation: Galata isiniif.
+
+Original: How are you?
+Setting: beams=1, length_penalty=1.0
+Translation: Akkamitti?
+
+Original: How are you?
+Setting: beams=4, length_penalty=1.0
+Translation: Akkam jirtu?
+
+Original: How are you?
+Setting: beams=4, length_penalty=1.2
+Translation: Akkam jirtu?
+
+Original: I am learning English.
+Setting: beams=1, length_penalty=1.0
+Translation: Ingiliffa baradheera.
+
+Original: I am learning English.
+Setting: beams=4, length_penalty=1.0
+Translation: Ingiliffa baradheera.
+
+Original: I am learning English.
+Setting: beams=4, length_penalty=1.2
+Translation: Ingiliffa baradheera.
+
+Original: I am learning Afaan Oromo.
+Setting: beams=1, length_penalty=1.0
+Translation: Afaan Oromo baradheera.
+
+Original: I am learning Afaan Oromo.
+Setting: beams=4, length_penalty=1.0
+Translation: Afaan Oromo baradheera.
+
+Original: I am learning Afaan Oromo.
+Setting: beams=4, length_penalty=1.2
+Translation: Afaan Oromo baradheera.
+
+Original: I will go to school tomorrow.
+Setting: beams=1, length_penalty=1.0
+Translation: Bor nan gara mana barumsaa dhaqa.
+
+Original: I will go to school tomorrow.
+Setting: beams=4, length_penalty=1.0
+Translation: Ganama mana barumsaatti nan deema.
+
+Original: I will go to school tomorrow.
+Setting: beams=4, length_penalty=1.2
+Translation: Ganama mana barumsaatti nan deema.
+
+Original: I am going to school today.
+Setting: beams=1, length_penalty=1.0
+Translation: Har'a mana barumsaa dhaqa.
+
+Original: I am going to school today.
+Setting: beams=4, length_penalty=1.0
+Translation: Har'a mana barumsaatti nan dhaqa.
+
+Original: I am going to school today.
+Setting: beams=4, length_penalty=1.2
+Translation: Har'a mana barumsaatti nan dhaqa.
+
+Original: The teacher speaks Afaan Oromo.
+Setting: beams=1, length_penalty=1.0
+Translation: Barsiisaan Afaan Oromo dubbata.
+
+Original: The teacher speaks Afaan Oromo.
+Setting: beams=4, length_penalty=1.0
+Translation: Barsiisaan Afaan Oromo dubbata.
+
+Original: The teacher speaks Afaan Oromo.
+Setting: beams=4, length_penalty=1.2
+Translation: Barsiisaan Afaan Oromo dubbata.
+
+Original: Ani Afaan Oromoo barachaa jira.
+Setting: beams=1, length_penalty=1.0
+Translation: I am learning English.
+
+Original: Ani Afaan Oromoo barachaa jira.
+Setting: beams=4, length_penalty=1.0
+Translation: I am learning English.
+
+Original: Ani Afaan Oromoo barachaa jira.
+Setting: beams=4, length_penalty=1.2
+Translation: I am learning English.
+
+Original: Boru gara mana barumsaa nan deema.
+Setting: beams=1, length_penalty=1.0
+Translation: I go to school tomorrow.
+
+Original: Boru gara mana barumsaa nan deema.
+Setting: beams=4, length_penalty=1.0
+Translation: I go to school in the morning.
+
+Original: Boru gara mana barumsaa nan deema.
+Setting: beams=4, length_penalty=1.2
+Translation: I go to school in the morning.
+
+Original: Har'a gara mana barumsaa nan deema.
+Setting: beams=1, length_penalty=1.0
+Translation: Today I am going to school.
+
+Original: Har'a gara mana barumsaa nan deema.
+Setting: beams=4, length_penalty=1.0
+Translation: I'm going to school today.
+
+Original: Har'a gara mana barumsaa nan deema.
+Setting: beams=4, length_penalty=1.2
+Translation: I'm going to school today.
+

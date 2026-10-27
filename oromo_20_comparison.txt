@@ -1,0 +1,82 @@
+AFAN OROMOO -> ENGLISH MODEL COMPARISON
+
+01. Afaan Oromoo: Galatoomi.
+TranslatePsy: Galatoomi.
+NLLB: Thank you.
+
+02. Afaan Oromoo: Akkam jirta?
+TranslatePsy: Akkam jirta?
+NLLB: How are you?
+
+03. Afaan Oromoo: Akkam jirtu?
+TranslatePsy: Akkam jirtu?
+NLLB: How are you?
+
+04. Afaan Oromoo: Ani bishaan nan barbaada.
+TranslatePsy: I want water.
+NLLB: I need water.
+
+05. Afaan Oromoo: Ani Afaan Oromoo barachaa jira.
+TranslatePsy: I am learning the Afaan Oromoo.
+NLLB: I am learning English.
+
+06. Afaan Oromoo: Ani Afaan Ingilizii barachaa jira.
+TranslatePsy: I am learning English.
+NLLB: I am learning English.
+
+07. Afaan Oromoo: Boru gara mana barumsaa nan deema.
+TranslatePsy: I am going to school.
+NLLB: I go to school in the morning.
+
+08. Afaan Oromoo: Har'a gara mana barumsaa nan deema.
+TranslatePsy: I am going to school today.
+NLLB: I'm going to school today.
+
+09. Afaan Oromoo: Kaleessa mana barumsaa deeme.
+TranslatePsy: Yesterday I went to school.
+NLLB: He had just gone to school.
+
+10. Afaan Oromoo: Barsiisaan koo Afaan Oromoo dubbata.
+TranslatePsy: My teacher speaks Oromo language.
+NLLB: My teacher speaks English.
+
+11. Afaan Oromoo: Barsiisaan koo Afaan Ingilizii dubbata.
+TranslatePsy: My teacher speaks English.
+NLLB: My teacher speaks English.
+
+12. Afaan Oromoo: Nuti Afaan Oromoo baranna.
+TranslatePsy: We are learning the Afaan Oromo.
+NLLB: We learn the language.
+
+13. Afaan Oromoo: Isheen mana barumsaa deemti.
+TranslatePsy: Isheen mana barumsaa deemti.
+NLLB: She goes to school.
+
+14. Afaan Oromoo: Inni kitaaba dubbisa.
+TranslatePsy: Hee, inni kitaaba dubbisa.
+NLLB: He reads a book.
+
+15. Afaan Oromoo: Ani barataa dha.
+TranslatePsy: I am a student.
+NLLB: I am a student.
+
+16. Afaan Oromoo: Ani barsiisaa dha.
+TranslatePsy: I am a teacher.
+NLLB: I am a teacher.
+
+17. Afaan Oromoo: Har'a hojii qaba.
+TranslatePsy: Hoy hojii qaba.
+NLLB: Today I have work to do.
+
+18. Afaan Oromoo: Boru si nan arga.
+TranslatePsy: Boru si nan arga.
+NLLB: I'll see you tomorrow.
+
+19. Afaan Oromoo: Maaloo na gargaari.
+TranslatePsy: Maaloo na gargaari.
+NLLB: Please help me.
+
+20. Afaan Oromoo: Ani nyaata nan barbaada.
+TranslatePsy: Ani nyaata nan barbaada.
+NLLB: I need food.
+
