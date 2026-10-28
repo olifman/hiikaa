@@ -1,5 +1,6 @@
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'phrases.dart';
 
 class Db {
@@ -30,10 +31,38 @@ class Db {
       }
       await batch.commit(noResult: true);
     });
+    await _ensureSentences(db);
     _db = db;
     return db;
   }
 
+  static Future<void> _ensureSentences(Database db) async {
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS sentences(id INTEGER PRIMARY KEY AUTOINCREMENT, en TEXT NOT NULL, om TEXT NOT NULL, am TEXT NOT NULL)');
+    final c = Sqflite.firstIntValue(
+            await db.rawQuery('SELECT COUNT(*) FROM sentences')) ??
+        0;
+    if (c > 0) return;
+    final raw = await rootBundle.loadString('assets/flores_sentences.tsv');
+    final batch = db.batch();
+    for (final line in raw.split('\n')) {
+      final p = line.trimRight().split('\t');
+      if (p.length < 3) continue;
+      batch.insert('sentences', {'en': p[0], 'om': p[1], 'am': p[2]});
+    }
+    await batch.commit(noResult: true);
+  }
+
+  static Future<List<Map<String, Object?>>> sentences(String query) async {
+    final db = await open();
+    final q = query.trim().toLowerCase();
+    if (q.length < 2) return [];
+    final like = '%$q%';
+    return db.query('sentences',
+        where: 'LOWER(en) LIKE ? OR LOWER(om) LIKE ? OR am LIKE ?',
+        whereArgs: [like, like, like],
+        limit: 50);
+  }
   static String norm(String s) => s
       .toLowerCase()
       .replaceAll(RegExp("[?!.,;:\u1362\u1363]"), '')

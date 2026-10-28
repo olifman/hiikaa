@@ -38,6 +38,7 @@ class _HomePageState extends State<HomePage> {
       const TranslatePage(),
       const PhrasebookPage(),
       const HistoryPage(),
+      const SentencesPage(),
     ];
     return Scaffold(
       body: pages[index],
@@ -48,6 +49,7 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(icon: Icon(Icons.translate), label: 'Translate'),
           NavigationDestination(icon: Icon(Icons.menu_book), label: 'Phrasebook'),
           NavigationDestination(icon: Icon(Icons.history), label: 'History'),
+          NavigationDestination(icon: Icon(Icons.article_outlined), label: 'Sentences'),
         ],
       ),
     );
@@ -339,6 +341,70 @@ class _HistoryPageState extends State<HistoryPage> {
                 );
               },
             ),
+          ),
+        ]),
+      );
+}
+
+class SentencesPage extends StatefulWidget {
+  const SentencesPage({super.key});
+  @override
+  State<SentencesPage> createState() => _SentencesPageState();
+}
+
+class _SentencesPageState extends State<SentencesPage> {
+  String query = '';
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('Sentences')),
+        body: Column(children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: TextField(
+              onChanged: (v) => setState(() => query = v),
+              decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
+                  hintText: 'Search a word in any language'),
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<Map<String, Object?>>>(
+              future: Db.sentences(query),
+              builder: (context, snap) {
+                if (query.trim().length < 2) {
+                  return const Center(
+                      child: Text('Type a word to search 2,000+ sentences'));
+                }
+                if (snap.hasError) {
+                  return Center(child: Text('Error: ${snap.error}'));
+                }
+                if (!snap.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final rows = snap.data!;
+                if (rows.isEmpty) {
+                  return const Center(child: Text('No sentences found'));
+                }
+                return ListView.separated(
+                  itemCount: rows.length,
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (context, i) {
+                    final r = rows[i];
+                    return ListTile(
+                      title: SelectableText(r['en'] as String),
+                      subtitle: SelectableText('${r['om']}\n${r['am']}'),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.all(8),
+            child: Text('Source: FLORES-200 (Meta AI), CC BY-SA 4.0',
+                style: TextStyle(fontSize: 11)),
           ),
         ]),
       );
