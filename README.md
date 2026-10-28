@@ -15,3 +15,8 @@ We tested NLLB, MADLAD and OPUS-MT models offline. On our target phone (1.9 GB R
 Version 0.1 (beta). Phrases are drafts pending native-speaker review.
 
 ## Run
+    flutter pub get
+    flutter run
+
+## Build APK
+    flutter build apk --release
