@@ -9,7 +9,7 @@ class Db {
     final existing = _db;
     if (existing != null) return existing;
     final path = p.join(await getDatabasesPath(), 'hiikaa.db');
-    final db = await openDatabase(path, version: 2,
+    final db = await openDatabase(path, version: 3,
         onUpgrade: (d, oldV, newV) async {
       await d.delete('phrasebook');
       final b = d.batch();
