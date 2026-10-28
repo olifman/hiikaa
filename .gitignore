@@ -57,3 +57,5 @@ models/
 *.gguf
 *.safetensors
 __pycache__/
+
+phrases_review.csv
