@@ -1,17 +1,17 @@
-# hiikaa
+﻿# Hiikaa: Offline English / Afaan Oromoo / Amharic Translator
 
-A new Flutter project.
+An Android app that translates common phrases between English, Afaan Oromoo and Amharic **without internet**.
 
-## Getting Started
+## Features
+- Offline phrasebook (65 phrases, 9 categories) stored in SQLite
+- Translate in any direction between the three languages (swap button)
+- History and favorites
+- Searchable phrasebook with Draft / Verified labels
 
-This project is a starting point for a Flutter application.
+## Why a phrasebook first?
+We tested NLLB, MADLAD and OPUS-MT models offline. On our target phone (1.9 GB RAM, 32-bit) the models were too large or too inaccurate for Afaan Oromoo, so verified phrases are used first and a compact model is planned for a later version.
 
-A few resources to get you started if this is your first Flutter project:
+## Status
+Version 0.1 (beta). Phrases are drafts pending native-speaker review.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Run
