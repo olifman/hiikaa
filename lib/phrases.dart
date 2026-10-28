@@ -4,7 +4,7 @@ const seedPhrases = <List<String>>[
   ['Greetings', 'Good morning', 'Akkam bultan', 'እንደምን አደሩ'],
   ['Greetings', 'How are you?', 'Akkam jirta?', 'እንዴት ነህ?'],
   ['Greetings', 'I am fine, thank you', 'Nagaan jira, galatoomi', 'ደህና ነኝ፣ አመሰግናለሁ'],
-  ['Greetings', 'Good night', 'Nagaatti bulaa', 'ደህና እደር'],
+  ['Greetings', 'Good night', 'Nagaan bulaa', 'ደህና እደር'],
   ['Greetings', 'Goodbye', 'Nagaatti', 'ደህና ሁን'],
   ['Basics', 'Thank you', 'Galatoomi', 'አመሰግናለሁ'],
   ['Basics', 'Please', 'Maaloo', 'እባክህ'],

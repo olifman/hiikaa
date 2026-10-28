@@ -96,7 +96,27 @@ class _TranslatePageState extends State<TranslatePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Hiikaa')),
+        appBar: AppBar(
+          title: const Text('Hiikaa'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.info_outline),
+              onPressed: () => showDialog(
+                context: context,
+                builder: (c) => AlertDialog(
+                  title: const Text('About Hiikaa'),
+                  content: const Text(
+                      'Offline translator for English, Afaan Oromoo and Amharic.\n\nVersion 0.1 (beta)\nWorks without internet. Phrases are drafts being reviewed by native speakers. Do not rely on them for medical or legal decisions.'),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(c),
+                        child: const Text('OK')),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
