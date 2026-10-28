@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'db.dart';
+import 'phrases.dart';
 
 void main() => runApp(const HiikaaApp());
 
@@ -65,6 +66,7 @@ class _TranslatePageState extends State<TranslatePage> {
   final controller = TextEditingController();
   String output = '';
   bool found = false;
+  bool verified = false;
 
   Widget picker(Lang value, ValueChanged<Lang> onChanged) =>
       DropdownButton<Lang>(
@@ -80,9 +82,11 @@ class _TranslatePageState extends State<TranslatePage> {
     final text = controller.text.trim();
     if (text.isEmpty) return;
     final r = await Db.lookup(text, src.name, tgt.name);
+    final en = r == null ? null : await Db.lookupEn(text, src.name);
     if (!mounted) return;
     setState(() {
       found = r != null;
+      verified = en != null && verifiedEn.contains(en);
       output = r ?? 'Not in phrasebook yet. The AI model will be added in a later stage.';
     });
     if (r != null) {
@@ -120,6 +124,18 @@ class _TranslatePageState extends State<TranslatePage> {
             FilledButton(onPressed: translate, child: const Text('Translate')),
             const SizedBox(height: 16),
             Text(output, style: Theme.of(context).textTheme.titleLarge),
+            if (found)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  verified
+                      ? '\u2713 Verified by a native speaker'
+                      : 'Draft: not yet verified by a native speaker',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: verified ? Colors.green : Colors.orange),
+                ),
+              ),
             if (found)
               Align(
                 alignment: Alignment.centerLeft,
@@ -189,8 +205,22 @@ class _PhrasebookPageState extends State<PhrasebookPage> {
                       isThreeLine: true,
                       title: Text(r['en'] as String),
                       subtitle: Text('${r['om']}\n${r['am']}'),
-                      trailing: Text(r['category'] as String,
-                          style: Theme.of(context).textTheme.labelSmall),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(r['category'] as String,
+                              style: Theme.of(context).textTheme.labelSmall),
+                          const SizedBox(height: 4),
+                          verifiedEn.contains(r['en'])
+                              ? const Text('\u2713 Verified',
+                                  style: TextStyle(
+                                      color: Colors.green, fontSize: 11))
+                              : const Text('Draft',
+                                  style: TextStyle(
+                                      color: Colors.orange, fontSize: 11)),
+                        ],
+                      ),
                       onLongPress: () {
                         Clipboard.setData(ClipboardData(
                             text: '${r['en']}\n${r['om']}\n${r['am']}'));

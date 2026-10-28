@@ -50,6 +50,16 @@ class Db {
     return null;
   }
 
+  static Future<String?> lookupEn(String text, String src) async {
+    final db = await open();
+    final rows = await db.query('phrasebook', columns: ['en', src]);
+    final q = norm(text);
+    for (final r in rows) {
+      if (norm(r[src] as String) == q) return r['en'] as String;
+    }
+    return null;
+  }
+
   static Future<void> addHistory(
       String src, String tgt, String s, String t) async {
     final db = await open();

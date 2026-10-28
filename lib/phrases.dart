@@ -66,3 +66,6 @@ const seedPhrases = <List<String>>[
   ["Time", "Night", "Halkan", "ሌሊት"],
   ["Education", "I am a student", "Ani barataa dha", "ተማሪ ነኝ"],
   ["Education", "Teacher", "Barsiisaa", "አስተማሪ"],];
+
+// English text of phrases verified by native speakers (empty until reviewed)
+const verifiedEn = <String>{};
