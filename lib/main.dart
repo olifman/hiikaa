@@ -108,7 +108,7 @@ class _TranslatePageState extends State<TranslatePage> {
                 builder: (c) => AlertDialog(
                   title: const Text('About Hiikaa'),
                   content: const Text(
-                      'Offline translator for English, Afaan Oromoo and Amharic.\n\nVersion 0.1 (beta)\nWorks without internet. Phrases are drafts being reviewed by native speakers. Do not rely on them for medical or legal decisions.'),
+                      'Offline translator for English, Afaan Oromoo and Amharic.\n\nVersion 0.2 (beta)\nWorks without internet. Phrases are drafts being reviewed by native speakers. Do not rely on them for medical or legal decisions.'),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(c),
