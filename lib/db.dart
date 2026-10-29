@@ -11,15 +11,7 @@ class Db {
     if (existing != null) return existing;
     final path = p.join(await getDatabasesPath(), 'hiikaa.db');
     final db = await openDatabase(path, version: 4,
-        onUpgrade: (d, oldV, newV) async {
-      await d.delete('phrasebook');
-      final b = d.batch();
-      for (final r in seedPhrases) {
-        b.insert('phrasebook',
-            {'category': r[0], 'en': r[1], 'om': r[2], 'am': r[3]});
-      }
-      await b.commit(noResult: true);
-    }, onCreate: (d, v) async {
+        onUpgrade: (d, oldV, newV) async {}, onCreate: (d, v) async {
       await d.execute(
           'CREATE TABLE phrasebook(id INTEGER PRIMARY KEY AUTOINCREMENT, category TEXT NOT NULL, en TEXT NOT NULL, om TEXT NOT NULL, am TEXT NOT NULL)');
       await d.execute(
@@ -31,11 +23,32 @@ class Db {
       }
       await batch.commit(noResult: true);
     });
+    await _ensureSeedPhrases(db);
     await _ensureSentences(db);
     _db = db;
     return db;
   }
 
+
+  static Future<void> _ensureSeedPhrases(Database db) async {
+    for (final r in seedPhrases) {
+      final found = await db.query(
+        'phrasebook',
+        columns: ['id'],
+        where: 'en = ? AND om = ? AND am = ?',
+        whereArgs: [r[1], r[2], r[3]],
+        limit: 1,
+      );
+      if (found.isEmpty) {
+        await db.insert('phrasebook', {
+          'category': r[0],
+          'en': r[1],
+          'om': r[2],
+          'am': r[3],
+        });
+      }
+    }
+  }
   static Future<void> _ensureSentences(Database db) async {
     await db.execute(
         'CREATE TABLE IF NOT EXISTS sentences(id INTEGER PRIMARY KEY AUTOINCREMENT, en TEXT NOT NULL, om TEXT NOT NULL, am TEXT NOT NULL)');
@@ -58,10 +71,12 @@ class Db {
     final q = query.trim().toLowerCase();
     if (q.length < 2) return [];
     final like = '%$q%';
-    return db.query('sentences',
-        where: 'LOWER(en) LIKE ? OR LOWER(om) LIKE ? OR am LIKE ?',
-        whereArgs: [like, like, like],
-        limit: 50);
+    return db.query(
+      'sentences',
+      where: 'LOWER(en) LIKE ? OR LOWER(om) LIKE ? OR am LIKE ?',
+      whereArgs: [like, like, like],
+      orderBy: 'id ASC',
+    );
   }
   static String norm(String s) => s
       .toLowerCase()

@@ -348,64 +348,331 @@ class _HistoryPageState extends State<HistoryPage> {
 
 class SentencesPage extends StatefulWidget {
   const SentencesPage({super.key});
+
   @override
   State<SentencesPage> createState() => _SentencesPageState();
 }
 
 class _SentencesPageState extends State<SentencesPage> {
   String query = '';
+  int page = 0;
+  static const int pageSize = 10;
+
+  Widget _languagePanel({
+    required String label,
+    required String text,
+    required Color background,
+    required Color accent,
+    required IconData icon,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: accent.withValues(alpha: 0.18)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 17, color: accent),
+              const SizedBox(width: 7),
+              Text(
+                label,
+                style: TextStyle(
+                  color: accent,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          SelectableText(
+            text.trim().isEmpty ? 'Hiikni hin jiru' : text,
+            style: const TextStyle(
+              fontSize: 15,
+              height: 1.55,
+              color: Color(0xFF202938),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Sentences')),
-        body: Column(children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              onChanged: (v) => setState(() => query = v),
-              decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
-                  hintText: 'Search a word in any language'),
-            ),
+        backgroundColor: const Color(0xFFF6F8FC),
+        appBar: AppBar(
+          title: const Text(
+            'Sentences',
+            style: TextStyle(fontWeight: FontWeight.w700),
           ),
-          Expanded(
-            child: FutureBuilder<List<Map<String, Object?>>>(
-              future: Db.sentences(query),
-              builder: (context, snap) {
-                if (query.trim().length < 2) {
-                  return const Center(
-                      child: Text('Type a word to search 2,000+ sentences'));
-                }
-                if (snap.hasError) {
-                  return Center(child: Text('Error: ${snap.error}'));
-                }
-                if (!snap.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final rows = snap.data!;
-                if (rows.isEmpty) {
-                  return const Center(child: Text('No sentences found'));
-                }
-                return ListView.separated(
-                  itemCount: rows.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
-                  itemBuilder: (context, i) {
-                    final r = rows[i];
-                    return ListTile(
-                      title: SelectableText(r['en'] as String),
-                      subtitle: SelectableText('${r['om']}\n${r['am']}'),
+          centerTitle: false,
+          backgroundColor: const Color(0xFFF6F8FC),
+          surfaceTintColor: Colors.transparent,
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
+              child: TextField(
+                onChanged: (v) => setState(() {
+                  query = v;
+                  page = 0;
+                }),
+                decoration: InputDecoration(
+                  hintText: 'Search sentences in any language',
+                  prefixIcon: const Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFE1E7F0),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF3977D5),
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: FutureBuilder<List<Map<String, Object?>>>(
+                future: Db.sentences(query),
+                builder: (context, snap) {
+                  if (query.trim().length < 2) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.menu_book_rounded,
+                              size: 54,
+                              color: Color(0xFF3977D5),
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              'Explore sentences',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(height: 6),
+                            Text(
+                              'Search a word to see it in Afaan Oromoo, English and Amharic.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xFF687386),
+                                height: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     );
-                  },
-                );
-              },
+                  }
+
+                  if (snap.hasError) {
+                    return Center(child: Text('Error: ${snap.error}'));
+                  }
+                  if (!snap.hasData) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  final rows = snap.data!;
+                  if (rows.isEmpty) {
+                    return const Center(
+                      child: Text('No sentences found'),
+                    );
+                  }
+
+                  final pageCount = (rows.length / pageSize).ceil();
+                  final safePage = page >= pageCount ? pageCount - 1 : page;
+                  final pageRows = rows
+                      .skip(safePage * pageSize)
+                      .take(pageSize)
+                      .toList();
+
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.library_books_outlined,
+                              size: 18,
+                              color: Color(0xFF64748B),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${rows.length} sentences found',
+                              style: const TextStyle(
+                                color: Color(0xFF64748B),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(14, 2, 14, 12),
+                          itemCount: pageRows.length,
+                          itemBuilder: (context, i) {
+                            final r = pageRows[i];
+                            return Card(
+                              elevation: 0,
+                              margin: const EdgeInsets.only(bottom: 14),
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: const BorderSide(
+                                  color: Color(0xFFE7EBF2),
+                                ),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 32,
+                                          height: 32,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFEEF2FF),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Text(
+                                            '${safePage * pageSize + i + 1}',
+                                            style: const TextStyle(
+                                              color: Color(0xFF4356A6),
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        const Text(
+                                          'Sentence',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 15,
+                                            color: Color(0xFF344054),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _languagePanel(
+                                      label: 'AFaan OROMOO',
+                                      text: '${r['om'] ?? ''}',
+                                      background: const Color(0xFFEAF7EE),
+                                      accent: const Color(0xFF247447),
+                                      icon: Icons.menu_book_rounded,
+                                    ),
+                                    const SizedBox(height: 9),
+                                    _languagePanel(
+                                      label: 'ENGLISH',
+                                      text: '${r['en'] ?? ''}',
+                                      background: const Color(0xFFEBF3FF),
+                                      accent: const Color(0xFF245FC0),
+                                      icon: Icons.translate_rounded,
+                                    ),
+                                    const SizedBox(height: 9),
+                                    _languagePanel(
+                                      label: '???? ? AMHARIC',
+                                      text: '${r['am'] ?? ''}',
+                                      background: const Color(0xFFFFF3E5),
+                                      accent: const Color(0xFF9A5B16),
+                                      icon: Icons.language_rounded,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(color: Color(0xFFE7EBF2)),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: safePage > 0
+                                  ? () => setState(() => page = safePage - 1)
+                                  : null,
+                              icon: const Icon(Icons.chevron_left),
+                              label: const Text('Previous'),
+                            ),
+                            Flexible(
+                              child: Text(
+                                '${safePage + 1} / $pageCount',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF475467),
+                                ),
+                              ),
+                            ),
+                            FilledButton.icon(
+                              onPressed: safePage < pageCount - 1
+                                  ? () => setState(() => page = safePage + 1)
+                                  : null,
+                              icon: const Icon(Icons.chevron_right),
+                              label: const Text('Next'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(8),
-            child: Text('Source: FLORES-200 (Meta AI), CC BY-SA 4.0',
-                style: TextStyle(fontSize: 11)),
-          ),
-        ]),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(8, 4, 8, 8),
+              child: Text(
+                'Source: FLORES-200 (Meta AI), CC BY-SA 4.0',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Color(0xFF7A8495),
+                ),
+              ),
+            ),
+          ],
+        ),
       );
 }
