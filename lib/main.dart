@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'db.dart';
 import 'phrases.dart';
@@ -702,6 +702,59 @@ const _noteColors = <int>[
   0xFFF3E5F5,
 ];
 
+class _PinEntryDialog extends StatefulWidget {
+  const _PinEntryDialog();
+
+  @override
+  State<_PinEntryDialog> createState() => _PinEntryDialogState();
+}
+
+class _PinEntryDialogState extends State<_PinEntryDialog> {
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('PIN galchi'),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        keyboardType: TextInputType.number,
+        obscureText: true,
+        maxLength: 12,
+        decoration: const InputDecoration(
+          labelText: 'PIN (lakkoofsa 6–12)',
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Dhiisi'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, '__RECOVER__'),
+          child: const Text('PIN dagadhe?'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, controller.text.trim()),
+          child: const Text('Bani'),
+        ),
+      ],
+    );
+  }
+}
 class NotesPage extends StatefulWidget {
   const NotesPage({super.key});
 
@@ -774,35 +827,14 @@ class _NotesPageState extends State<NotesPage> {
   }
 
   Future<String?> _showPinDialog() async {
-    final controller = TextEditingController();
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('PIN galchi'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          keyboardType: TextInputType.number,
-          obscureText: true,
-          maxLength: 12,
-          decoration: const InputDecoration(labelText: 'PIN (lakkoofsa 6â€“12)'),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Dhiisi')),
-          TextButton(
-            onPressed: () => Navigator.pop(context, '__RECOVER__'),
-            child: const Text('PIN dagadhe?'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Bani'),
-          ),
-        ],
-      ),
+      builder: (_) => const _PinEntryDialog(),
     );
-    controller.dispose();
-    if (result == '__RECOVER__') return await _recoverPrivateAccess() ? '__RECOVERED__' : null;
-    if (result == null || result == '__RECOVERED__') return result == '__RECOVERED__' ? '' : null;
+
+    if (result == '__RECOVER__') {
+      return await _recoverPrivateAccess() ? '__RECOVERED__' : null;
+    }
     return result;
   }
 
@@ -1270,6 +1302,33 @@ class _NotesPageState extends State<NotesPage> {
   }
 }
 
+class _NotebookLinesPainter extends CustomPainter {
+  const _NotebookLinesPainter({required this.lineHeight});
+
+  final double lineHeight;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFE6E2D6)
+      ..strokeWidth = 1;
+
+    final firstLine = 12 + lineHeight * 0.95;
+
+    for (double y = firstLine; y < size.height - 8; y += lineHeight) {
+      canvas.drawLine(
+        Offset(14, y),
+        Offset(size.width - 14, y),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _NotebookLinesPainter oldDelegate) {
+    return oldDelegate.lineHeight != lineHeight;
+  }
+}
 class NoteEditor extends StatefulWidget {
   const NoteEditor({super.key, this.note});
 
@@ -1394,19 +1453,52 @@ class _NoteEditorState extends State<NoteEditor> {
                 ),
               ),
               const SizedBox(height: 12),
-              TextField(
-                controller: contentController,
-                minLines: 5,
-                maxLines: 12,
-                textCapitalization: TextCapitalization.sentences,
-                style: TextStyle(fontSize: fontSize, height: 1.5),
-                decoration: InputDecoration(
-                  labelText: 'Yaadannoo kee barreessi...',
-                  alignLabelWithHint: true,
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+              const Text(
+                'Barreeffama kee',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF26352D),
+                ),
+              ),
+              const SizedBox(height: 9),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFEF8),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xFFE8E1CF)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.035),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: CustomPaint(
+                  painter: _NotebookLinesPainter(
+                    lineHeight: fontSize * 1.7,
+                  ),
+                  child: TextField(
+                    controller: contentController,
+                    minLines: 9,
+                    maxLines: 14,
+                    keyboardType: TextInputType.multiline,
+                    textCapitalization: TextCapitalization.sentences,
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      height: 1.7,
+                      color: const Color(0xFF29352F),
+                    ),
+                    cursorColor: const Color(0xFF176B48),
+                    decoration: const InputDecoration(
+                      hintText: 'Yaada kee asitti barreessi...',
+                      hintStyle: TextStyle(color: Color(0xFF9A9A8F)),
+                      contentPadding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                    ),
                   ),
                 ),
               ),
