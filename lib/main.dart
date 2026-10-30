@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'db.dart';
 import 'phrases.dart';
+import 'private_notes_security.dart';
 
 void main() => runApp(const HiikaaApp());
 
@@ -18,7 +19,7 @@ class HiikaaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
         title: 'Hiikaa',
-        theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green),
+        theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green, fontFamily: 'NotoSansEthiopic'),
         home: const HomePage(),
       );
 }
@@ -39,6 +40,7 @@ class _HomePageState extends State<HomePage> {
       const PhrasebookPage(),
       const HistoryPage(),
       const SentencesPage(),
+      const NotesPage(),
     ];
     return Scaffold(
       body: pages[index],
@@ -50,6 +52,7 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(icon: Icon(Icons.menu_book), label: 'Phrasebook'),
           NavigationDestination(icon: Icon(Icons.history), label: 'History'),
           NavigationDestination(icon: Icon(Icons.article_outlined), label: 'Sentences'),
+          NavigationDestination(icon: Icon(Icons.edit_note_rounded), label: 'Notes'),
         ],
       ),
     );
@@ -108,7 +111,7 @@ class _TranslatePageState extends State<TranslatePage> {
                 builder: (c) => AlertDialog(
                   title: const Text('About Hiikaa'),
                   content: const Text(
-                      'Offline translator for English, Afaan Oromoo and Amharic.\n\nVersion 0.2 (beta)\nWorks without internet. Phrases are drafts being reviewed by native speakers. Do not rely on them for medical or legal decisions.'),
+                      'Offline translator for English, Afaan Oromoo and Amharic.\n\nVersion 0.2 (beta)\nWorks without internet. Do not rely on them for medical or legal decisions.'),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(c),
@@ -147,18 +150,6 @@ class _TranslatePageState extends State<TranslatePage> {
             const SizedBox(height: 16),
             Text(output, style: Theme.of(context).textTheme.titleLarge),
             if (found)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  verified
-                      ? '\u2713 Verified by a native speaker'
-                      : 'Draft: not yet verified by a native speaker',
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: verified ? Colors.green : Colors.orange),
-                ),
-              ),
-            if (found)
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
@@ -172,10 +163,7 @@ class _TranslatePageState extends State<TranslatePage> {
                 ),
               ),
             const SizedBox(height: 24),
-            Text(
-              'Beta: phrases are being checked by native speakers. Machine translation can contain errors.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+
           ],
         ),
       );
@@ -226,7 +214,19 @@ class _PhrasebookPageState extends State<PhrasebookPage> {
                     return ListTile(
                       isThreeLine: true,
                       title: Text(r['en'] as String),
-                      subtitle: Text('${r['om']}\n${r['am']}'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(r['om'] as String),
+                          Text(
+                            r['am'] as String,
+                            style: const TextStyle(
+                              fontFamily: 'NotoSansEthiopic',
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
                       trailing: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -676,3 +676,919 @@ class _SentencesPageState extends State<SentencesPage> {
         ),
       );
 }
+
+
+const _noteCategories = <String>[
+  'Mana Amantii',
+  'Iccitii',
+  'Barnoota',
+  'Dhuunfaa',
+  'Yaada',
+  'Kan Biroo',
+];
+
+const _noteIcons = <String>[
+  '??', '?', '??', '??', '??', '??', '??', '?', '??', '??',
+];
+
+const _noteColors = <int>[
+  0xFFE8F5E9,
+  0xFFEDE7F6,
+  0xFFFFF3E0,
+  0xFFE3F2FD,
+  0xFFFCE4EC,
+  0xFFFFFDE7,
+  0xFFE0F2F1,
+  0xFFF3E5F5,
+];
+
+class NotesPage extends StatefulWidget {
+  const NotesPage({super.key});
+
+  @override
+  State<NotesPage> createState() => _NotesPageState();
+}
+
+class _NotesPageState extends State<NotesPage> {
+  String query = '';
+  String category = 'All';
+  bool favoritesOnly = false;
+
+  Future<bool> _ensurePrivateUnlocked() async {
+    final security = PrivateNotesSecurity.instance;
+    if (security.isUnlocked) return true;
+    if (await security.isConfigured) {
+      final pin = await _showPinDialog();
+      if (pin == null) return false;
+      if (pin == '__RECOVERED__') {
+        await Db.encryptLegacyPrivateNotes();
+        if (mounted) setState(() {});
+        return true;
+      }
+      final ok = await security.unlock(pin);
+      if (!ok) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('PIN sirrii miti.')),
+          );
+        }
+        return false;
+      }
+      await Db.encryptLegacyPrivateNotes();
+      if (mounted) setState(() {});
+      return true;
+    }
+    final pin = await _showSetupPinDialog();
+    if (pin == null) return false;
+    try {
+      final recoveryCode = await security.setup(pin);
+      if (mounted) {
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: const Text('Recovery code kee'),
+            content: SelectableText(
+              '$recoveryCode\n\nKoodii kana bakka nageenya qabu irratti kuusi. PIN yoo dagatte si gargaara. Amma booda guutummaatti irra deebitee argachuun hin dandaâ€™amu.',
+            ),
+            actions: [
+              FilledButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Kuuseera'),
+              ),
+            ],
+          ),
+        );
+      }
+      await Db.encryptLegacyPrivateNotes();
+      if (mounted) setState(() {});
+      return true;
+    } on Object catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('PIN qopheessuun hin milkoofne: $e')),
+        );
+      }
+      return false;
+    }
+  }
+
+  Future<String?> _showPinDialog() async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('PIN galchi'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          obscureText: true,
+          maxLength: 12,
+          decoration: const InputDecoration(labelText: 'PIN (lakkoofsa 6â€“12)'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Dhiisi')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, '__RECOVER__'),
+            child: const Text('PIN dagadhe?'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Bani'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (result == '__RECOVER__') return await _recoverPrivateAccess() ? '__RECOVERED__' : null;
+    if (result == null || result == '__RECOVERED__') return result == '__RECOVERED__' ? '' : null;
+    return result;
+  }
+
+  Future<String?> _showSetupPinDialog() async {
+    final pin = TextEditingController();
+    final confirm = TextEditingController();
+    String? error;
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('PIN iccitii qopheessi'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('PIN lakkoofsa 6â€“12 qabu filadhu.'),
+              TextField(controller: pin, keyboardType: TextInputType.number, obscureText: true, maxLength: 12, decoration: const InputDecoration(labelText: 'PIN haaraa')),
+              TextField(controller: confirm, keyboardType: TextInputType.number, obscureText: true, maxLength: 12, decoration: const InputDecoration(labelText: 'PIN irra deebiâ€™i')),
+              if (error != null) Text(error!, style: const TextStyle(color: Colors.red)),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Dhiisi')),
+            FilledButton(
+              onPressed: () {
+                if (!RegExp(r'^\d{6,12}$').hasMatch(pin.text.trim())) {
+                  setDialogState(() => error = 'PIN lakkoofsa 6â€“12 taâ€™uu qaba.');
+                } else if (pin.text.trim() != confirm.text.trim()) {
+                  setDialogState(() => error = 'PIN lamaan wal hin fakkaatan.');
+                } else {
+                  Navigator.pop(context, pin.text.trim());
+                }
+              },
+              child: const Text('Qopheessi'),
+            ),
+          ],
+        ),
+      ),
+    );
+    pin.dispose();
+    confirm.dispose();
+    return result;
+  }
+
+  Future<bool> _recoverPrivateAccess() async {
+    final code = TextEditingController();
+    final pin = TextEditingController();
+    final confirm = TextEditingController();
+    String? error;
+    final values = await showDialog<List<String>>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Recovery code fayyadami'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: code, textCapitalization: TextCapitalization.characters, decoration: const InputDecoration(labelText: 'Recovery code')),
+              TextField(controller: pin, keyboardType: TextInputType.number, obscureText: true, maxLength: 12, decoration: const InputDecoration(labelText: 'PIN haaraa')),
+              TextField(controller: confirm, keyboardType: TextInputType.number, obscureText: true, maxLength: 12, decoration: const InputDecoration(labelText: 'PIN haaraa irra deebiâ€™i')),
+              if (error != null) Text(error!, style: const TextStyle(color: Colors.red)),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Dhiisi')),
+            FilledButton(
+              onPressed: () {
+                if (!RegExp(r'^\d{6,12}$').hasMatch(pin.text.trim())) {
+                  setDialogState(() => error = 'PIN lakkoofsa 6â€“12 taâ€™uu qaba.');
+                } else if (pin.text.trim() != confirm.text.trim()) {
+                  setDialogState(() => error = 'PIN lamaan wal hin fakkaatan.');
+                } else {
+                  Navigator.pop(context, [code.text.trim(), pin.text.trim()]);
+                }
+              },
+              child: const Text('PIN jijjiiri'),
+            ),
+          ],
+        ),
+      ),
+    );
+    code.dispose();
+    pin.dispose();
+    confirm.dispose();
+    if (values == null) return false;
+    final ok = await PrivateNotesSecurity.instance.recoverWithCode(values[0], values[1]);
+    if (!ok) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Recovery code sirrii miti.')));
+      return false;
+    }
+    await Db.encryptLegacyPrivateNotes();
+    if (mounted) setState(() {});
+    return true;
+  }
+
+  Future<void> _managePrivateAccess() async {
+    final security = PrivateNotesSecurity.instance;
+    if (security.isUnlocked) {
+      security.lock();
+      if (mounted) setState(() {});
+      return;
+    }
+    await _ensurePrivateUnlocked();
+  }
+
+  Future<void> _openEditor([Map<String, Object?>? note]) async {
+    if (note != null && (note['is_private'] as int? ?? 0) == 1 &&
+        !PrivateNotesSecurity.instance.isUnlocked) {
+      final unlocked = await _ensurePrivateUnlocked();
+      if (!unlocked || !mounted) return;
+      final freshRows = await Db.notes(category: 'All');
+      note = freshRows.cast<Map<String, Object?>>().firstWhere(
+        (row) => row['id'] == note!['id'],
+        orElse: () => note!,
+      );
+    }
+    if (!mounted) return;
+    final result = await showModalBottomSheet<Map<String, Object?>>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => NoteEditor(note: note),
+    );
+    if (!mounted || result == null) return;
+    if ((result['is_private'] as int? ?? 0) == 1 &&
+        !PrivateNotesSecurity.instance.isUnlocked) {
+      final unlocked = await _ensurePrivateUnlocked();
+      if (!unlocked || !mounted) return;
+    }
+
+    try {
+      if (note == null) {
+        await Db.addNote(result);
+      } else {
+        await Db.updateNote(note['id'] as int, result);
+      }
+      if (mounted) setState(() {});
+    } on Object catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Yaadannoo olkaaʼuun hin milkoofne: ${e.toString()}'),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+    }
+  }
+
+  Future<void> _delete(Map<String, Object?> note) async {
+    if ((note['is_private'] as int? ?? 0) == 1 &&
+        !PrivateNotesSecurity.instance.isUnlocked) {
+      final unlocked = await _ensurePrivateUnlocked();
+      if (!unlocked || !mounted) return;
+      final noteId = note['id'];
+      final freshRows = await Db.notes(category: 'All');
+      final matches = freshRows.where((row) => row['id'] == noteId);
+      if (matches.isEmpty) return;
+      note = matches.first;
+    }
+    if (!mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Yaadannoo haquu?'),
+        content: Text('"${note['title']}" haquu barbaaddaa?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Lakki'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Haqi'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await Db.deleteNote(note['id'] as int);
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FC),
+      appBar: AppBar(
+        title: const Text(
+          'My Notes',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        backgroundColor: const Color(0xFFF7F8FC),
+        actions: [
+          IconButton(
+            tooltip: PrivateNotesSecurity.instance.isUnlocked ? 'Yaadannoo iccitii cufi' : 'PIN / Yaadannoo iccitii',
+            onPressed: _managePrivateAccess,
+            icon: Icon(PrivateNotesSecurity.instance.isUnlocked ? Icons.lock_open_rounded : Icons.lock_outline_rounded),
+          ),
+          IconButton(
+            tooltip: 'Favorites only',
+            onPressed: () => setState(() => favoritesOnly = !favoritesOnly),
+            icon: Icon(
+              favoritesOnly ? Icons.star_rounded : Icons.star_border_rounded,
+              color: favoritesOnly ? Colors.amber.shade800 : null,
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _openEditor(),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Yaadannoo haaraa'),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 2, 16, 12),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF176B48), Color(0xFF39966B)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.auto_awesome_rounded,
+                      color: Colors.white, size: 28),
+                  SizedBox(height: 12),
+                  Text(
+                    'Yaada kee kuusi.',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 23,
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    'Barumsa, yaadannoo fi karoora kee bakka tokko.',
+                    style: TextStyle(color: Colors.white, height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              onChanged: (value) => setState(() => query = value),
+              decoration: InputDecoration(
+                hintText: 'Yaadannoo barbaadi...',
+                prefixIcon: const Icon(Icons.search_rounded),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(17),
+                  borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(17),
+                  borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 46,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: [
+                for (final item in ['All', ..._noteCategories])
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: ChoiceChip(
+                      label: Text(item == 'All' ? 'Hunda' : item),
+                      selected: category == item,
+                      onSelected: (_) => setState(() => category = item),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<Map<String, Object?>>>(
+              future: Db.notes(
+                query: query,
+                category: category,
+                favoritesOnly: favoritesOnly,
+              ),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('Dogoggora: ${snapshot.error}'));
+                }
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final rows = snapshot.data!;
+                if (rows.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(28),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.sticky_note_2_outlined,
+                              size: 64, color: Colors.green.shade300),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Yaadannoo hin jiru',
+                            style: TextStyle(
+                                fontSize: 19, fontWeight: FontWeight.w700),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Mallattoo + tuqiitii yaadannoo kee jalqabi.',
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(14, 8, 14, 100),
+                  itemCount: rows.length,
+                  itemBuilder: (context, index) {
+                    final note = rows[index];
+                    final color = Color(note['color'] as int);
+                    final isPrivate = (note['is_private'] as int) == 1;
+                    final isFavorite = (note['is_favorite'] as int) == 1;
+                    final title = note['title'] as String;
+                    final content = note['content'] as String;
+                    final updated = DateTime.fromMillisecondsSinceEpoch(
+                      note['updated_at'] as int,
+                    );
+                    final date =
+                        '${updated.day}/${updated.month}/${updated.year}';
+
+                    return Card(
+                      elevation: 0,
+                      color: color,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color: Colors.black.withValues(alpha: 0.05),
+                        ),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: () => _openEditor(note),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(15, 14, 8, 14),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 46,
+                                height: 46,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.75),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Text(
+                                  note['icon'] as String,
+                                  style: const TextStyle(fontSize: 23),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      title,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.textTheme.titleMedium
+                                          ?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      isPrivate
+                                          ? '?? Yaadannoo iccitii'
+                                          : content,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: (note['font_size'] as num)
+                                            .toDouble(),
+                                        height: 1.35,
+                                        color: const Color(0xFF465166),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 9),
+                                    Text(
+                                      '${note['category']}  ?  $date',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF667085),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuButton<String>(
+                                onSelected: (value) async {
+                                  if (value == 'favorite') {
+                                    await Db.updateNote(
+                                      note['id'] as int,
+                                      {'is_favorite': isFavorite ? 0 : 1},
+                                    );
+                                    if (mounted) setState(() {});
+                                  } else if (value == 'edit') {
+                                    await _openEditor(note);
+                                  } else if (value == 'delete') {
+                                    await _delete(note);
+                                  }
+                                },
+                                itemBuilder: (_) => [
+                                  PopupMenuItem(
+                                    value: 'favorite',
+                                    child: Text(isFavorite
+                                        ? 'Jaallatamoo keessaa baasi'
+                                        : 'Jaallatamoo keessatti dabali'),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'edit',
+                                    child: Text('Gulaali'),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'delete',
+                                    child: Text('Haqi'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class NoteEditor extends StatefulWidget {
+  const NoteEditor({super.key, this.note});
+
+  final Map<String, Object?>? note;
+
+  @override
+  State<NoteEditor> createState() => _NoteEditorState();
+}
+
+class _NoteEditorState extends State<NoteEditor> {
+  late final TextEditingController titleController;
+  late final TextEditingController contentController;
+  late final TextEditingController customCategoryController;
+  late String category;
+  late String icon;
+  late int color;
+  late double fontSize;
+  late bool favorite;
+  late bool isPrivate;
+
+  @override
+  void initState() {
+    super.initState();
+    final note = widget.note;
+    titleController = TextEditingController(
+      text: note?['title'] as String? ?? '',
+    );
+    contentController = TextEditingController(
+      text: note?['content'] as String? ?? '',
+    );
+    customCategoryController = TextEditingController();
+    category = _noteCategories.contains(note?['category'])
+        ? note!['category'] as String
+        : 'Dhuunfaa';
+    icon = note?['icon'] as String? ?? '??';
+    color = note?['color'] as int? ?? _noteColors[0];
+    fontSize = (note?['font_size'] as num?)?.toDouble() ?? 16;
+    favorite = (note?['is_favorite'] as int? ?? 0) == 1;
+    isPrivate = (note?['is_private'] as int? ?? 0) == 1;
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    contentController.dispose();
+    customCategoryController.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final title = titleController.text.trim();
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mata-duree galchi.')),
+      );
+      return;
+    }
+    final customCategory = customCategoryController.text.trim();
+    Navigator.pop<Map<String, Object?>>(context, {
+      'title': title,
+      'content': contentController.text.trim(),
+      'category': customCategory.isEmpty ? category : customCategory,
+      'color': color,
+      'icon': icon,
+      'font_size': fontSize,
+      'is_favorite': favorite ? 1 : 0,
+      'is_private': isPrivate ? 1 : 0,
+      '_confirm_private_to_public':
+          (widget.note?['is_private'] as int? ?? 0) == 1 && !isPrivate,
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.92,
+        ),
+        decoration: const BoxDecoration(
+          color: Color(0xFFFAFBFF),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 42,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                widget.note == null ? 'Yaadannoo haaraa' : 'Yaadannoo gulaali',
+                style: const TextStyle(
+                  fontSize: 23,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: titleController,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  labelText: 'Mata-duree',
+                  prefixIcon: const Icon(Icons.title_rounded),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: contentController,
+                minLines: 5,
+                maxLines: 12,
+                textCapitalization: TextCapitalization.sentences,
+                style: TextStyle(fontSize: fontSize, height: 1.5),
+                decoration: InputDecoration(
+                  labelText: 'Yaadannoo kee barreessi...',
+                  alignLabelWithHint: true,
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+              const Text('Ramaddii', style: TextStyle(fontWeight: FontWeight.w700)),
+              const SizedBox(height: 6),
+              DropdownButtonFormField<String>(
+                initialValue: category,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  for (final item in _noteCategories)
+                    DropdownMenuItem(value: item, child: Text(item)),
+                ],
+                onChanged: (value) {
+                  if (value != null) setState(() => category = value);
+                },
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: customCategoryController,
+                decoration: const InputDecoration(
+                  labelText: 'Ramaddii mataa keetii (filannoo)',
+                  hintText: 'Fakkeenya: Karoora 2027',
+                  prefixIcon: Icon(Icons.create_new_folder_outlined),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 15),
+              const Text('Mallattoo', style: TextStyle(fontWeight: FontWeight.w700)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final item in _noteIcons)
+                    InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => setState(() => icon = item),
+                      child: Container(
+                        width: 43,
+                        height: 43,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: icon == item
+                              ? const Color(0xFFD9F0E4)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: icon == item
+                                ? const Color(0xFF238357)
+                                : const Color(0xFFE0E5EC),
+                            width: icon == item ? 2 : 1,
+                          ),
+                        ),
+                        child: Text(item, style: const TextStyle(fontSize: 21)),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text('Halluu', style: TextStyle(fontWeight: FontWeight.w700)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 10,
+                children: [
+                  for (final value in _noteColors)
+                    InkWell(
+                      onTap: () => setState(() => color = value),
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Color(value),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: color == value
+                                ? const Color(0xFF176B48)
+                                : Colors.black12,
+                            width: color == value ? 3 : 1,
+                          ),
+                        ),
+                        child: color == value
+                            ? const Icon(Icons.check, size: 17)
+                            : null,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  const Icon(Icons.format_size_rounded),
+                  const SizedBox(width: 8),
+                  const Text('Hammamtaa barruu'),
+                  Expanded(
+                    child: Slider(
+                      min: 14,
+                      max: 24,
+                      divisions: 10,
+                      value: fontSize,
+                      label: fontSize.round().toString(),
+                      onChanged: (value) => setState(() => fontSize = value),
+                    ),
+                  ),
+                  Text(fontSize.round().toString()),
+                ],
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: favorite,
+                onChanged: (value) => setState(() => favorite = value),
+                secondary: const Icon(Icons.star_rounded, color: Colors.amber),
+                title: const Text('Jaallatamoo'),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: isPrivate,
+                onChanged: (value) async {
+                  if (!value && isPrivate) {
+                    if (!mounted) return;
+    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (dialogContext) => AlertDialog(
+                        title: const Text('Akeekkachiisa nageenyaa'),
+                        content: const Text(
+                          'Yaadannoo iccitii gara idileetti jijjiiruun '
+                          'qabiyyee isaa barruu ifa taâ€™een kuusa. '
+                          'Namoonni bilbila kee argatan dubbisuu dandaâ€™u. '
+                          'Jijjiiruu barbaaddaa?',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(dialogContext, false),
+                            child: const Text('Dhiisi'),
+                          ),
+                          FilledButton(
+                            onPressed: () => Navigator.pop(dialogContext, true),
+                            child: const Text('Eeyyee, jijjiiri'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (!mounted || confirmed != true) return;
+                  }
+                  setState(() => isPrivate = value);
+                },
+                secondary: const Icon(Icons.lock_outline_rounded),
+                title: const Text('Yaadannoo iccitii'),
+                subtitle: const Text(
+                  'PIN fi AES-GCM encryption fayyadamuun kuufama.',
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: _save,
+                  icon: const Icon(Icons.check_rounded),
+                  label: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 13),
+                    child: Text('Kuusi'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
