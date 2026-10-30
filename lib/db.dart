@@ -11,7 +11,7 @@ class Db {
     final existing = _db;
     if (existing != null) return existing;
     final path = p.join(await getDatabasesPath(), 'hiikaa.db');
-    final db = await openDatabase(path, version: 6,
+    final db = await openDatabase(path, version: 7,
         onUpgrade: (d, oldV, newV) async {}, onCreate: (d, v) async {
       await d.execute(
           'CREATE TABLE phrasebook(id INTEGER PRIMARY KEY AUTOINCREMENT, category TEXT NOT NULL, en TEXT NOT NULL, om TEXT NOT NULL, am TEXT NOT NULL)');
