@@ -38,9 +38,9 @@ const List<PhraseGroup> phraseGroups = [
     'Countries', 'Hotel'
   ]),
   PhraseGroup('health', 'Health', Icons.local_hospital_outlined, Color(0xFFD81B60),
-      ['Health', 'Body', 'Emergency']),
+      ['Health', 'Body', 'Emergency', 'Symptoms', 'Conditions', 'Doctor', 'Pharmacy', 'Hygiene', 'Mother and child', 'Medical words']),
   PhraseGroup('edu', 'Education', Icons.school_outlined, Color(0xFF6A1B9A),
-      ['Education', 'School']),
+      ['Education', 'School', 'Classroom', 'School life', 'Exams', 'Subjects', 'Grades']),
   PhraseGroup('biz', 'Business & Work', Icons.business_center_outlined, Color(0xFF37474F),
       ['Work', 'Office', 'Technology']),
   PhraseGroup('family', 'Family & People', Icons.family_restroom, Color(0xFFAD1457),
