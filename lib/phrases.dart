@@ -2357,6 +2357,50 @@ const seedPhrases = <List<String>>[
   ["Grades","I am in grade 10","Kutaa kudhanaffaa baradha","አሥረኛ ክፍል ነኝ"],
   ["Grades","I am in grade 11","Kutaa kudha tokkoffaa baradha","አሥራ አንደኛ ክፍል ነኝ"],
   ["Grades","I am in grade 12","Kutaa kudha lammaffaa baradha","አሥራ ሁለተኛ ክፍል ነኝ"],
+  // ---- New Science entries ----
+  ["Science", "Hypothesis", "Yaada tilmaamaa", "መላምት"],
+  ["Science", "Observation", "Daawwannaa", "ምልከታ"],
+  ["Science", "Microscope", "Maaykiroskoopii", "ማይክሮስኮፕ"],
+  ["Science", "Telescope", "Teeleskoopii", "ቴሌስኮፕ"],
+  ["Science", "Atom", "Atoomii", "አቶም"],
+  ["Science", "Chemical element", "Maalima keemikaalaa bu’uuraa", "ኬሚካላዊ ንጥረ ነገር"],
+  ["Science", "Chemical compound", "Walmakaa keemikaalaa", "ኬሚካላዊ ውህድ"],
+
+  // ---- New Mathematics entries ----
+  ["Mathematics", "Geometry", "Ji’oomeetirii", "ጂኦሜትሪ"],
+  ["Mathematics", "Triangle", "Rog-sadee", "ሶስት ማዕዘን"],
+  ["Mathematics", "Circle", "Geengoo", "ክብ"],
+  ["Mathematics", "Perimeter", "Naannawa boca", "ዙሪያ"],
+  ["Mathematics", "Area", "Bal’ina", "ስፋት"],
+  ["Mathematics", "Algebra", "Aljebraa", "አልጀብራ"],
+  ["Mathematics", "Probability", "Carraa ta’uu", "ዕድል"],
+
+  // ---- New Computer Science entries ----
+  ["Computer Science", "Database", "Kuusdeetaa", "ዳታቤዝ"],
+  ["Computer Science", "Database table", "Gabatee kuusdeetaa", "የዳታቤዝ ሰንጠረዥ"],
+  ["Computer Science", "Operating system", "Sirna hojii", "ኦፕሬቲንግ ሲስተም"],
+  ["Computer Science", "Source code", "Koodii madda", "ምንጭ ኮድ"],
+  ["Computer Science", "Debugging", "Dogoggora koodii sirreessuu", "ማረም"],
+  ["Computer Science", "Computer network", "Neetworkii kompiitaraa", "የኮምፒውተር ኔትወርክ"],
+  ["Computer Science", "Encryption", "Iccitii koodii gochuu", "ምስጠራ"],
+
+  // ---- New Software Engineering entries ----
+  ["Software Engineering", "Software testing", "Qormaata sooftiweerii", "የሶፍትዌር ሙከራ"],
+  ["Software Engineering", "Software architecture", "Caasaa sooftiweerii", "የሶፍትዌር አርክቴክቸር"],
+  ["Software Engineering", "Agile development", "Misooma saffisaa fi jijjiirama fudhatu", "አጂል ልማት"],
+  ["Software Engineering", "Sprint", "Marsaa hojii gabaabaa", "አጭር የሥራ ዙር"],
+  ["Software Engineering", "Deployment", "Hojiirra oolchuu", "ማሰማራት"],
+  ["Software Engineering", "Software maintenance", "Tajaajila sooftiweerii itti fufaa", "የሶፍትዌር ጥገና"],
+  ["Software Engineering", "Requirements specification", "Ibsa barbaachisummaa", "የመስፈርት ዝርዝር"],
+
+  // ---- New Technology entries ----
+  ["Technology", "Smartphone", "Bilbila ismaartii", "ስማርት ስልክ"],
+  ["Technology", "Keyboard", "Kiiboordii", "ቁልፍ ሰሌዳ"],
+  ["Technology", "Computer mouse", "Maawusii kompiitaraa", "የኮምፒውተር አይጥ"],
+  ["Technology", "Printer", "Maxxansaa", "ማተሚያ"],
+  ["Technology", "Scanner", "Iskaanaara", "ስካነር"],
+  ["Technology", "USB flash drive", "Kuusaa USB", "ዩኤስቢ ፍላሽ"],
+  ["Technology", "Software", "Sooftiweerii", "ሶፍትዌር"],
 ];
 
 // English text of phrases verified by native speakers (empty until reviewed)
