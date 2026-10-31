@@ -2401,6 +2401,25 @@ const seedPhrases = <List<String>>[
   ["Technology", "Scanner", "Iskaanaara", "ስካነር"],
   ["Technology", "USB flash drive", "Kuusaa USB", "ዩኤስቢ ፍላሽ"],
   ["Technology", "Software", "Sooftiweerii", "ሶፍትዌር"],
+
+  // ---- Greetings Batch 1: DRAFT, native-speaker review needed ----
+  ["Greetings", "Long time no see", "Yeroo dheeraaf wal hin agarre", "ለረጅም ጊዜ አልተገናኘንም።"],
+  ["Greetings", "Are you doing well?", "Nagaan jirtaa?", "ደህና ነህ?"],
+  ["Greetings", "Everything is fine", "Hundumtuu gaarii dha", "ሁሉም ጥሩ ነው።"],
+  ["Greetings", "Make yourself at home", "Mana kee godhadhu", "ቤትህ እንደሆነ ቁጠረው።"],
+  ["Greetings", "Welcome back", "Baga deebite", "እንኳን ተመለስክ።"],
+  ["Greetings", "Please sit down", "Maaloo taa'i", "እባክህ ተቀመጥ።"],
+  ["Greetings", "Enjoy your day", "Guyyaa kee gammachuun dabarsi", "ቀንህን በደስታ አሳልፍ።"],
+  ["Greetings", "Take care", "Of eeggadhu", "ተጠንቀቅ።"],
+  ["Greetings", "Until next time", "Yeroo itti aanu wal argina", "እስከሚቀጥለው ጊዜ እንገናኛለን።"],
+  ["Greetings", "Please greet your family", "Maatii keetti nagaa naaf himi", "ለቤተሰብህ ሰላምታዬን አድርስ።"],
+  ["Greetings", "Give my regards to everyone", "Hundaaf nagaa naaf himi", "ለሁሉም ሰላምታዬን አድርስ።"],
+  ["Greetings", "I'm happy to see you", "Si arguukootti gammadeera", "ስላየሁህ ደስ ብሎኛል።"],
+  ["Greetings", "Glad you could come", "Dhufuu keetti gammadeera", "በመምጣትህ ደስ ብሎኛል።"],
+  ["Greetings", "How is your health?", "Fayyaan kee akkam jira?", "ጤናህ እንዴት ነው?"],
+  ["Greetings", "How is everyone at home?", "Warri mana hundi akkam jiru?", "ቤት ያሉት ሁሉ እንዴት ናቸው?"],
+  ["Greetings", "May you have a peaceful day", "Guyyaa nagaa siif haa ta'u", "ሰላማዊ ቀን ይሁንልህ።"],
+  ["Greetings", "I hope you are well", "Nagaan akka jirtu nan abdadha", "ደህና እንደሆንክ ተስፋ አደርጋለሁ።"],
 ];
 
 // English text of phrases verified by native speakers (empty until reviewed)
