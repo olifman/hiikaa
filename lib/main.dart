@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'phrasebook_page.dart';
 import 'package:flutter/services.dart';
 import 'db.dart';
 import 'phrases.dart';
@@ -37,7 +38,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final pages = <Widget>[
       const TranslatePage(),
-      const PhrasebookPage(),
+      const CategoryPhrasebookPage(),
       const HistoryPage(),
       const SentencesPage(),
       const NotesPage(),
@@ -111,7 +112,7 @@ class _TranslatePageState extends State<TranslatePage> {
                 builder: (c) => AlertDialog(
                   title: const Text('About Hiikaa'),
                   content: const Text(
-                      'Offline translator for English, Afaan Oromoo and Amharic.\n\nVersion 0.2 (beta)\nWorks without internet. Do not rely on them for medical or legal decisions.'),
+                      'Offline translator for English, Afaan Oromoo and Amharic.\n\nVersion 0.3 (beta)\nWorks without internet. Do not rely on them for medical or legal decisions.'),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(c),
