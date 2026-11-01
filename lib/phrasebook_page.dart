@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -166,7 +166,7 @@ class _CategoryPhrasebookPageState extends State<CategoryPhrasebookPage> {
         for (final g in visible)
           _GroupCard(
             title: g.title,
-            subtitle: '${_counts[g.id]} phrases',
+            subtitle: '',
             icon: g.icon,
             color: g.color,
             onTap: () => _open(g),
@@ -242,8 +242,10 @@ class _GroupCard extends StatelessWidget {
                     style: const TextStyle(
                         fontWeight: FontWeight.w700, fontSize: 15),
                   ),
-                  const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(fontSize: 12)),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: const TextStyle(fontSize: 12)),
+                  ],
                 ],
               ),
             ],

@@ -67,3 +67,7 @@ data_sources/
 backups/
 hiikaa_phone.db
 *.bak
+*.db
+batch*_review.csv
+phrasebook_*.txt
+quality_report.csv
