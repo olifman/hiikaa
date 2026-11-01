@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -55,12 +55,41 @@ const List<PhraseGroup> phraseGroups = [
   ]),
   PhraseGroup('culture', 'Culture & Society', Icons.account_balance_outlined,
       Color(0xFF8D6E63), ['Culture', 'Society', 'Concept']),
+  PhraseGroup('sci', 'Science & Tech', Icons.science_outlined, Color(0xFF00695C), [
+    'Science', 'Mathematics', 'Statistics', 'Computer Science', 'Software Engineering',
+    'Computer Security', 'Technology and computers', 'Internet and communication',
+    'Engineering', 'Construction', 'Research'
+  ]),
   PhraseGroup('more', 'More', Icons.more_horiz, Color(0xFF757575), []),
 ];
+
+const Map<String, String> _extraCategoryGroups = {
+  'academic': 'edu',
+  'education and university': 'edu',
+  'university': 'edu',
+  'study skills': 'edu',
+  'agriculture': 'home',
+  'weather and environment': 'home',
+  'home and household': 'home',
+  'cooking and food': 'food',
+  'transportation': 'travel',
+  'health and medicine': 'health',
+  'emergency and safety': 'health',
+  'banking and finance': 'biz',
+  'finance': 'biz',
+  'business': 'biz',
+  'business and trade': 'biz',
+  'law and legal services': 'culture',
+  'government and public services': 'culture',
+  'community and culture': 'culture',
+  'everyday conversation': 'conv',
+  'daily life': 'conv',
+};
 
 final Map<String, String> _catToGroup = {
   for (final g in phraseGroups)
     for (final c in g.categories) c.toLowerCase(): g.id,
+  ..._extraCategoryGroups,
 };
 
 final List<PhraseEntry> allPhraseEntries = [
