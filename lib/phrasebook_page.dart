@@ -63,6 +63,10 @@ const List<PhraseGroup> phraseGroups = [
   PhraseGroup('love', 'Love & Relationships', Icons.favorite_border, Color(0xFFEC407A), [
     'Feelings', 'Compliments', 'Dating', 'Relationship', 'Marriage', 'Distance'
   ]),
+  PhraseGroup('jobs', 'Jobs & Interviews', Icons.work_outline, Color(0xFF3949AB), [
+    'Job interview questions', 'Job interview answers', 'Job application', 'Boss to employee',
+    'Employee to boss', 'Hiring and salary', 'Colleagues at work', 'Workplace problems', 'Quitting and leaving'
+  ]),
   PhraseGroup('more', 'More', Icons.more_horiz, Color(0xFF757575), []),
 ];
 
@@ -413,7 +417,6 @@ class PhraseListView extends StatelessWidget {
         itemBuilder: (context, i) {
           final e = entries[i];
           final isSaved = saved.contains(e.en);
-          final verified = verifiedEn.contains(e.en);
           return ListTile(
             title: Text(e.en, style: const TextStyle(fontWeight: FontWeight.w600)),
             subtitle: Column(
@@ -422,13 +425,6 @@ class PhraseListView extends StatelessWidget {
                 Text(e.om),
                 Text(e.am),
                 const SizedBox(height: 2),
-                Text(
-                  verified ? '\u2713 Verified' : 'Draft',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: verified ? Colors.green : Colors.orange,
-                  ),
-                ),
               ],
             ),
             trailing: IconButton(
@@ -449,3 +445,5 @@ class PhraseListView extends StatelessWidget {
     );
   }
 }
+
+
