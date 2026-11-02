@@ -663,16 +663,6 @@ class _SentencesPageState extends State<SentencesPage> {
                 },
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(8, 4, 8, 8),
-              child: Text(
-                'Source: FLORES-200 (Meta AI), CC BY-SA 4.0',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Color(0xFF7A8495),
-                ),
-              ),
-            ),
           ],
         ),
       );

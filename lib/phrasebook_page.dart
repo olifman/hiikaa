@@ -60,6 +60,9 @@ const List<PhraseGroup> phraseGroups = [
     'Computer Security', 'Technology and computers', 'Internet and communication',
     'Engineering', 'Construction', 'Research'
   ]),
+  PhraseGroup('love', 'Love & Relationships', Icons.favorite_border, Color(0xFFEC407A), [
+    'Feelings', 'Compliments', 'Dating', 'Relationship', 'Marriage', 'Distance'
+  ]),
   PhraseGroup('more', 'More', Icons.more_horiz, Color(0xFF757575), []),
 ];
 
@@ -84,6 +87,14 @@ const Map<String, String> _extraCategoryGroups = {
   'community and culture': 'culture',
   'everyday conversation': 'conv',
   'daily life': 'conv',
+  'study habits': 'edu',
+  'university life': 'edu',
+  'library': 'edu',
+  'teaching': 'edu',
+  'writing and reading': 'edu',
+  'math class': 'edu',
+  'languages': 'edu',
+  'class schedule': 'edu',
 };
 
 final Map<String, String> _catToGroup = {
