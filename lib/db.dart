@@ -32,7 +32,7 @@ class Db {
     final path = p.join(await getDatabasesPath(), 'hiikaa.db');
     final db = await openDatabase(
       path,
-      version: 13,
+      version: 14,
       onUpgrade: (d, oldV, newV) async {},
       onCreate: (d, v) async {
         await d.execute(

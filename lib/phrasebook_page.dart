@@ -67,6 +67,11 @@ const List<PhraseGroup> phraseGroups = [
     'Job interview questions', 'Job interview answers', 'Job application', 'Boss to employee',
     'Employee to boss', 'Hiring and salary', 'Colleagues at work', 'Workplace problems', 'Quitting and leaving'
   ]),
+  PhraseGroup('gov', 'Government & Offices', Icons.account_balance_outlined, Color(0xFF455A64), [
+    'Police station', 'Court', 'Prosecutor', 'Defense and military', 'Communication office',
+    'Immigration and passport', 'City and kebele office', 'Tax and revenue',
+    'Land and housing office', 'Utilities and post office'
+  ]),
   PhraseGroup('more', 'More', Icons.more_horiz, Color(0xFF757575), []),
 ];
 
@@ -91,6 +96,13 @@ const Map<String, String> _extraCategoryGroups = {
   'community and culture': 'culture',
   'everyday conversation': 'conv',
   'daily life': 'conv',
+  'lectures and classes': 'edu',
+  'academic writing': 'edu',
+  'research and thesis': 'edu',
+  'exams and grading': 'edu',
+  'student and teacher talk': 'edu',
+  'student services': 'edu',
+  'faculty and staff': 'edu',
   'study habits': 'edu',
   'university life': 'edu',
   'library': 'edu',
