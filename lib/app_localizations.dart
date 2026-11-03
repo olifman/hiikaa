@@ -404,6 +404,23 @@ const Map<String, Map<AppLanguage, String>> _translations = {
     AppLanguage.om: 'PIN lakkoofsa 6 hanga 12 ta’uu qaba.',
     AppLanguage.am: 'PIN ከ6 እስከ 12 አሃዞች መሆን አለበት።',
   },
+  'swap_languages': {
+    AppLanguage.en: 'Swap languages',
+    AppLanguage.om: 'Afaan wal jijjiiri',
+    AppLanguage.am:
+        '\u124B\u1295\u124B\u12CE\u127D\u1295 \u1240\u12EB\u12ED\u122D',
+  },
+  'nothing_here_yet': {
+    AppLanguage.en: 'Nothing here yet',
+    AppLanguage.om: 'Hanga ammaa homtuu hin jiru',
+    AppLanguage.am:
+        '\u12A5\u1235\u12AB\u1201\u1295 \u121D\u1295\u121D \u12E8\u1208\u121D',
+  },
+  'clear_all': {
+    AppLanguage.en: 'Clear all',
+    AppLanguage.om: 'Hunda haqi',
+    AppLanguage.am: '\u1201\u1209\u1295\u121D \u12A0\u133D\u12F3',
+  },
   'change_pin': {
     AppLanguage.en: 'Change PIN',
     AppLanguage.om: 'PIN jijjiiri',

@@ -423,7 +423,7 @@ class _TranslatePageState extends State<TranslatePage> {
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: IconButton(
-                  tooltip: 'Swap languages',
+                  tooltip: tr(widget.appLanguage, 'swap_languages'),
                   icon: const Icon(
                     Icons.swap_horiz_rounded,
                     color: Color(0xFF246B45),
@@ -706,7 +706,7 @@ class _HistoryPageState extends State<HistoryPage> {
             await Db.clearHistory();
             setState(() {});
           },
-          child: const Text('Clear all'),
+          child: Text(tr(widget.appLanguage, 'clear_all')),
         ),
       ],
     ),
@@ -736,7 +736,9 @@ class _HistoryPageState extends State<HistoryPage> {
               }
               final rows = snap.data!;
               if (rows.isEmpty) {
-                return const Center(child: Text('Nothing here yet'));
+                return Center(
+                  child: Text(tr(widget.appLanguage, 'nothing_here_yet')),
+                );
               }
               return ListView.separated(
                 itemCount: rows.length,
