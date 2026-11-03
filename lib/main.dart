@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -113,8 +114,7 @@ class _HiikaaAppState extends State<HiikaaApp> {
       theme: _makeTheme(Brightness.light),
       darkTheme: _makeTheme(Brightness.dark),
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-      localizationsDelegates:
-          FlutterQuillLocalizations.localizationsDelegates,
+      localizationsDelegates: FlutterQuillLocalizations.localizationsDelegates,
       supportedLocales: FlutterQuillLocalizations.supportedLocales,
       builder: (context, child) {
         final media = MediaQuery.of(context);
@@ -1151,8 +1151,8 @@ class _PinEntryDialogState extends State<_PinEntryDialog> {
         keyboardType: TextInputType.number,
         obscureText: true,
         maxLength: 12,
-        decoration: const InputDecoration(
-          labelText: 'PIN (lakkoofsa 6–12)',
+        decoration: InputDecoration(
+          labelText: tr(widget.appLanguage, 'pin_length'),
         ),
       ),
       actions: [
@@ -1222,7 +1222,7 @@ class _NotesPageState extends State<NotesPage> {
           builder: (context) => AlertDialog(
             title: Text(tr(widget.appLanguage, 'recovery_code_title')),
             content: SelectableText(
-              '$recoveryCode\n\nKoodii kana bakka nageenya qabu irratti kuusi. PIN yoo dagatte si gargaara. Amma booda guutummaatti irra deebitee argachuun hin danda’amu.',
+              '$recoveryCode\n\n${tr(widget.appLanguage, 'recovery_code_note')}',
             ),
             actions: [
               FilledButton(
@@ -1239,7 +1239,9 @@ class _NotesPageState extends State<NotesPage> {
     } on Object catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('PIN qopheessuun hin milkoofne: $e')),
+          SnackBar(
+            content: Text('${tr(widget.appLanguage, 'pin_setup_error')}$e'),
+          ),
         );
       }
       return false;
@@ -1271,9 +1273,7 @@ class _NotesPageState extends State<NotesPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'PIN lakkoofsa 6 hanga 12 qabu filadhu.',
-              ),
+              Text(tr(widget.appLanguage, 'pin_setup_instruction')),
               TextField(
                 controller: pin,
                 keyboardType: TextInputType.number,
@@ -1288,8 +1288,8 @@ class _NotesPageState extends State<NotesPage> {
                 keyboardType: TextInputType.number,
                 obscureText: true,
                 maxLength: 12,
-                decoration: const InputDecoration(
-                  labelText: 'PIN irra deebi galchi',
+                decoration: InputDecoration(
+                  labelText: tr(widget.appLanguage, 'confirm_pin'),
                 ),
               ),
               if (error != null)
@@ -1305,10 +1305,12 @@ class _NotesPageState extends State<NotesPage> {
               onPressed: () {
                 if (!RegExp(r'^\d{6,12}$').hasMatch(pin.text.trim())) {
                   setDialogState(
-                    () => error = 'PIN lakkoofsa 6 hanga 12 ta’e qabaachuu qaba.',
+                    () => error = tr(widget.appLanguage, 'pin_validation'),
                   );
                 } else if (pin.text.trim() != confirm.text.trim()) {
-                  setDialogState(() => error = 'PIN lamaan wal hin fakkaatan.');
+                  setDialogState(
+                    () => error = tr(widget.appLanguage, 'pin_mismatch'),
+                  );
                 } else {
                   Navigator.pop(context, pin.text.trim());
                 }
@@ -1358,8 +1360,8 @@ class _NotesPageState extends State<NotesPage> {
                 keyboardType: TextInputType.number,
                 obscureText: true,
                 maxLength: 12,
-                decoration: const InputDecoration(
-                  labelText: 'PIN haaraa irra deebi’i',
+                decoration: InputDecoration(
+                  labelText: tr(widget.appLanguage, 'confirm_pin'),
                 ),
               ),
               if (error != null)
@@ -1375,10 +1377,12 @@ class _NotesPageState extends State<NotesPage> {
               onPressed: () {
                 if (!RegExp(r'^\d{6,12}$').hasMatch(pin.text.trim())) {
                   setDialogState(
-                    () => error = 'PIN lakkoofsa 6–12 ta’uu qaba.',
+                    () => error = tr(widget.appLanguage, 'pin_validation'),
                   );
                 } else if (pin.text.trim() != confirm.text.trim()) {
-                  setDialogState(() => error = 'PIN lamaan wal hin fakkaatan.');
+                  setDialogState(
+                    () => error = tr(widget.appLanguage, 'pin_mismatch'),
+                  );
                 } else {
                   Navigator.pop(context, [code.text.trim(), pin.text.trim()]);
                 }
@@ -1460,9 +1464,7 @@ class _NotesPageState extends State<NotesPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Yaadannoo olkaa’uun hin milkoofne: ${e.toString()}',
-          ),
+          content: Text('Yaadannoo olkaa’uun hin milkoofne: ${e.toString()}'),
           duration: const Duration(seconds: 5),
         ),
       );
@@ -1682,7 +1684,9 @@ class _NotesPageState extends State<NotesPage> {
                     final isPrivate = (note['is_private'] as int) == 1;
                     final isFavorite = (note['is_favorite'] as int) == 1;
                     final title = note['title'] as String;
-                    final content = notePlainText(note['content'] as String? ?? '');
+                    final content = notePlainText(
+                      note['content'] as String? ?? '',
+                    );
                     final updated = DateTime.fromMillisecondsSinceEpoch(
                       note['updated_at'] as int,
                     );
@@ -1788,9 +1792,7 @@ class _NotesPageState extends State<NotesPage> {
                                   ),
                                   PopupMenuItem(
                                     value: 'edit',
-                                    child: Text(
-                                      tr(widget.appLanguage, 'edit'),
-                                    ),
+                                    child: Text(tr(widget.appLanguage, 'edit')),
                                   ),
                                   PopupMenuItem(
                                     value: 'delete',
@@ -1851,22 +1853,24 @@ class _NoteEditorState extends State<NoteEditor> {
       final decoded = jsonDecode(savedContent);
       if (decoded is List &&
           decoded.isNotEmpty &&
-          decoded.every(
-            (item) => item is Map && item.containsKey('insert'),
-          )) {
+          decoded.every((item) => item is Map && item.containsKey('insert'))) {
         noteDocument = Document.fromJson(decoded);
       } else {
         noteDocument = Document.fromJson([
-          {'insert': savedContent.endsWith('\n')
-              ? savedContent
-              : '$savedContent\n'}
+          {
+            'insert': savedContent.endsWith('\n')
+                ? savedContent
+                : '$savedContent\n',
+          },
         ]);
       }
     } catch (_) {
       noteDocument = Document.fromJson([
-        {'insert': savedContent.endsWith('\n')
-            ? savedContent
-            : '$savedContent\n'}
+        {
+          'insert': savedContent.endsWith('\n')
+              ? savedContent
+              : '$savedContent\n',
+        },
       ]);
     }
 
@@ -2420,10 +2424,3 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 }
-
-
-
-
-
-
-
