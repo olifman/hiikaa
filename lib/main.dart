@@ -169,7 +169,7 @@ class _HomePageState extends State<HomePage> {
         onSettings: () => setState(() => index = 5),
       ),
       CategoryPhrasebookPage(appLanguage: widget.appLanguage),
-      const HistoryPage(),
+      HistoryPage(appLanguage: widget.appLanguage),
       SentencesPage(appLanguage: widget.appLanguage),
       NotesPage(appLanguage: widget.appLanguage),
       SettingsPage(
@@ -332,17 +332,17 @@ class _TranslatePageState extends State<TranslatePage> {
       title: const Text('Hiikaa'),
       actions: [
         IconButton(
-          tooltip: 'History',
+          tooltip: tr(widget.appLanguage, 'history'),
           icon: const Icon(Icons.history_rounded),
           onPressed: widget.onHistory,
         ),
         IconButton(
-          tooltip: 'Settings',
+          tooltip: tr(widget.appLanguage, 'settings'),
           icon: const Icon(Icons.settings_outlined),
           onPressed: widget.onSettings,
         ),
         IconButton(
-          tooltip: 'About Hiikaa',
+          tooltip: tr(widget.appLanguage, 'about_hiikaa'),
           icon: const Icon(Icons.info_outline_rounded),
           onPressed: () => showDialog(
             context: context,
@@ -354,7 +354,7 @@ class _TranslatePageState extends State<TranslatePage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(c),
-                  child: const Text('OK'),
+                  child: Text(tr(widget.appLanguage, 'ok')),
                 ),
               ],
             ),
@@ -452,8 +452,8 @@ class _TranslatePageState extends State<TranslatePage> {
             minLines: 3,
             maxLines: 5,
             decoration: InputDecoration(
-              labelText: 'Enter text',
-              hintText: 'Type a word or phrase...',
+              labelText: tr(widget.appLanguage, 'enter_text'),
+              hintText: tr(widget.appLanguage, 'type_phrase'),
               prefixIcon: const Icon(
                 Icons.edit_note_rounded,
                 color: Color(0xFF39815A),
@@ -538,7 +538,7 @@ class _TranslatePageState extends State<TranslatePage> {
                     ),
                     if (found)
                       IconButton(
-                        tooltip: 'Copy',
+                        tooltip: tr(widget.appLanguage, 'copy'),
                         icon: const Icon(
                           Icons.copy_rounded,
                           color: Color(0xFF39815A),
@@ -546,7 +546,9 @@ class _TranslatePageState extends State<TranslatePage> {
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: output));
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Copied')),
+                            SnackBar(
+                              content: Text(tr(widget.appLanguage, 'copied')),
+                            ),
                           );
                         },
                       ),
@@ -571,7 +573,8 @@ class _TranslatePageState extends State<TranslatePage> {
 }
 
 class PhrasebookPage extends StatefulWidget {
-  const PhrasebookPage({super.key});
+  const PhrasebookPage({super.key, required this.appLanguage});
+  final AppLanguage appLanguage;
   @override
   State<PhrasebookPage> createState() => _PhrasebookPageState();
 }
@@ -582,17 +585,17 @@ class _PhrasebookPageState extends State<PhrasebookPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     resizeToAvoidBottomInset: true,
-    appBar: AppBar(title: const Text('Phrasebook')),
+    appBar: AppBar(title: Text(tr(widget.appLanguage, 'phrasebook'))),
     body: Column(
       children: [
         Padding(
           padding: const EdgeInsets.all(12),
           child: TextField(
             onChanged: (v) => setState(() => query = v),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
               border: OutlineInputBorder(),
-              hintText: 'Search',
+              hintText: tr(widget.appLanguage, 'search'),
             ),
           ),
         ),
@@ -608,7 +611,9 @@ class _PhrasebookPageState extends State<PhrasebookPage> {
               }
               final rows = snap.data!;
               if (rows.isEmpty) {
-                return const Center(child: Text('No phrases found'));
+                return Center(
+                  child: Text(tr(widget.appLanguage, 'no_phrases')),
+                );
               }
               return ListView.separated(
                 itemCount: rows.length,
@@ -663,9 +668,11 @@ class _PhrasebookPageState extends State<PhrasebookPage> {
                           text: '${r['en']}\n${r['om']}\n${r['am']}',
                         ),
                       );
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Copied')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(tr(widget.appLanguage, 'copied')),
+                        ),
+                      );
                     },
                   );
                 },
@@ -679,7 +686,8 @@ class _PhrasebookPageState extends State<PhrasebookPage> {
 }
 
 class HistoryPage extends StatefulWidget {
-  const HistoryPage({super.key});
+  const HistoryPage({super.key, required this.appLanguage});
+  final AppLanguage appLanguage;
   @override
   State<HistoryPage> createState() => _HistoryPageState();
 }
@@ -691,7 +699,7 @@ class _HistoryPageState extends State<HistoryPage> {
   Widget build(BuildContext context) => Scaffold(
     resizeToAvoidBottomInset: true,
     appBar: AppBar(
-      title: const Text('History'),
+      title: Text(tr(widget.appLanguage, 'history')),
       actions: [
         TextButton(
           onPressed: () async {
@@ -709,7 +717,7 @@ class _HistoryPageState extends State<HistoryPage> {
           child: Row(
             children: [
               FilterChip(
-                label: const Text('Favorites only'),
+                label: Text(tr(widget.appLanguage, 'favorites_only')),
                 selected: favOnly,
                 onSelected: (v) => setState(() => favOnly = v),
               ),
@@ -855,7 +863,7 @@ class _SentencesPageState extends State<SentencesPage> {
               page = 0;
             }),
             decoration: InputDecoration(
-              hintText: 'Search sentences in any language',
+              hintText: tr(widget.appLanguage, 'search_sentences'),
               prefixIcon: const Icon(Icons.search),
               filled: true,
               fillColor: Colors.white,
@@ -926,7 +934,9 @@ class _SentencesPageState extends State<SentencesPage> {
 
               final rows = snap.data!;
               if (rows.isEmpty) {
-                return const Center(child: Text('No sentences found'));
+                return Center(
+                  child: Text(tr(widget.appLanguage, 'no_sentences')),
+                );
               }
 
               final pageCount = (rows.length / pageSize).ceil();
@@ -1052,7 +1062,7 @@ class _SentencesPageState extends State<SentencesPage> {
                               ? () => setState(() => page = safePage - 1)
                               : null,
                           icon: const Icon(Icons.chevron_left),
-                          label: const Text('Previous'),
+                          label: Text(tr(widget.appLanguage, 'previous')),
                         ),
                         Flexible(
                           child: Text(
@@ -1069,7 +1079,7 @@ class _SentencesPageState extends State<SentencesPage> {
                               ? () => setState(() => page = safePage + 1)
                               : null,
                           icon: const Icon(Icons.chevron_right),
-                          label: const Text('Next'),
+                          label: Text(tr(widget.appLanguage, 'next')),
                         ),
                       ],
                     ),
