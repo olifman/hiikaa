@@ -1222,7 +1222,7 @@ class _NotesPageState extends State<NotesPage> {
           builder: (context) => AlertDialog(
             title: Text(tr(widget.appLanguage, 'recovery_code_title')),
             content: SelectableText(
-              '$recoveryCode\n\n${tr(widget.appLanguage, 'recovery_code_note')}',
+              '$recoveryCode\n\n${tr(widget.appLanguage, 'recovery_code_instruction')}',
             ),
             actions: [
               FilledButton(

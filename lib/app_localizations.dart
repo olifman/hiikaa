@@ -404,6 +404,21 @@ const Map<String, Map<AppLanguage, String>> _translations = {
     AppLanguage.om: 'PIN lakkoofsa 6 hanga 12 ta’uu qaba.',
     AppLanguage.am: 'PIN ከ6 እስከ 12 አሃዞች መሆን አለበት።',
   },
+  'change_pin': {
+    AppLanguage.en: 'Change PIN',
+    AppLanguage.om: 'PIN jijjiiri',
+    AppLanguage.am: 'PIN \u1240\u12ED\u122D',
+  },
+  'lock_private_notes': {
+    AppLanguage.en: 'Lock private notes',
+    AppLanguage.om: 'Yaadannoo iccitii cufi',
+    AppLanguage.am: '\u121A\u1235\u1325\u122B\u12CA \u121B\u1235\u1273\u12C8\u123B \u1246\u120D\u134D',
+  },
+  'private_notes_access': {
+    AppLanguage.en: 'Open private notes',
+    AppLanguage.om: 'Yaadannoo iccitii bani',
+    AppLanguage.am: '\u121A\u1235\u1325\u122B\u12CA \u121B\u1235\u1273\u12C8\u123B \u12AD\u1348\u1275',
+  },
   'pin_mismatch': {
     AppLanguage.en: 'The two PINs do not match.',
     AppLanguage.om: 'PIN lamaan wal hin fakkaatan.',
