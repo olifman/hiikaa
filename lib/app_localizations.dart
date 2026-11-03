@@ -421,6 +421,32 @@ const Map<String, Map<AppLanguage, String>> _translations = {
     AppLanguage.om: 'Hunda haqi',
     AppLanguage.am: '\u1201\u1209\u1295\u121D \u12A0\u133D\u12F3',
   },
+  'locked_note_title': {
+    AppLanguage.en: 'Private note',
+    AppLanguage.om: 'Yaadannoo iccitii',
+    AppLanguage.am:
+        '\u121A\u1235\u1325\u122B\u12CA \u121B\u1235\u1273\u12C8\u123B',
+  },
+  'locked_note_content': {
+    AppLanguage.en: 'Enter your PIN to open this note.',
+    AppLanguage.om: 'PIN galchiitii yaadannoo bani.',
+    AppLanguage.am: '\u12ED\u1205\u1295 \u121B\u1235\u1273\u12C8\u123B \u1208\u1218\u12AD\u1348\u1275 PIN \u12A0\u1235\u1308\u1263\u1362',
+  },
+  'locked_note_error': {
+    AppLanguage.en: 'This note could not be opened.',
+    AppLanguage.om: 'Yaadannoo kana banuun hin danda’amne.',
+    AppLanguage.am: '\u12ED\u1205\u1295 \u121B\u1235\u1273\u12C8\u123B \u1218\u12AD\u1348\u1275 \u12A0\u120D\u1270\u127B\u1208\u121D\u1362',
+  },
+  'locked_note_legacy_title': {
+    AppLanguage.en: 'Old private note',
+    AppLanguage.om: 'Yaadannoo iccitii durii',
+    AppLanguage.am: '\u12E8\u1240\u12F5\u121E \u121A\u1235\u1325\u122B\u12CA \u121B\u1235\u1273\u12C8\u123B',
+  },
+  'locked_note_legacy_content': {
+    AppLanguage.en: 'Set up a PIN to protect this old private note.',
+    AppLanguage.om: 'PIN qopheessiitii yaadannoo iccitii eegsiisi.',
+    AppLanguage.am: '\u12ED\u1205\u1295 \u12E8\u1240\u12F5\u121E \u121B\u1235\u1273\u12C8\u123B \u1208\u1218\u1320\u1260\u1245 PIN \u12A0\u12D8\u130B\u1305\u1362',
+  },
   'change_pin': {
     AppLanguage.en: 'Change PIN',
     AppLanguage.om: 'PIN jijjiiri',

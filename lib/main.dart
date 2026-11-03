@@ -1444,7 +1444,10 @@ class _NotesPageState extends State<NotesPage> {
         !PrivateNotesSecurity.instance.isUnlocked) {
       final unlocked = await _ensurePrivateUnlocked();
       if (!unlocked || !mounted) return;
-      final freshRows = await Db.notes(category: 'All');
+      final freshRows = await Db.notes(
+        category: 'All',
+        language: widget.appLanguage,
+      );
       note = freshRows.cast<Map<String, Object?>>().firstWhere(
         (row) => row['id'] == note!['id'],
         orElse: () => note!,
@@ -1489,7 +1492,10 @@ class _NotesPageState extends State<NotesPage> {
       final unlocked = await _ensurePrivateUnlocked();
       if (!unlocked || !mounted) return;
       final noteId = note['id'];
-      final freshRows = await Db.notes(category: 'All');
+      final freshRows = await Db.notes(
+        category: 'All',
+        language: widget.appLanguage,
+      );
       final matches = freshRows.where((row) => row['id'] == noteId);
       if (matches.isEmpty) return;
       note = matches.first;
@@ -1644,6 +1650,7 @@ class _NotesPageState extends State<NotesPage> {
           Expanded(
             child: FutureBuilder<List<Map<String, Object?>>>(
               future: Db.notes(
+                language: widget.appLanguage,
                 query: query,
                 category: category,
                 favoritesOnly: favoritesOnly,

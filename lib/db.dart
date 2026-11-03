@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'phrases.dart';
 import 'private_notes_security.dart';
 import 'note_content.dart';
+import 'app_localizations.dart';
 
 class Db {
   static Database? _db;
@@ -137,7 +138,7 @@ class Db {
       .trim();
 
   static Future<Map<String, Map<String, Map<String, String>>>>
-      _loadPhraseLookup() async {
+  _loadPhraseLookup() async {
     final db = await open();
     final rows = await db.query(
       'phrasebook',
@@ -165,10 +166,10 @@ class Db {
   }
 
   static Future<Map<String, Map<String, Map<String, String>>>>?
-      _phraseLookupFuture;
+  _phraseLookupFuture;
 
   static Future<Map<String, Map<String, Map<String, String>>>>
-      _phraseLookup() async {
+  _phraseLookup() async {
     final pending = _phraseLookupFuture;
     if (pending != null) return pending;
 
@@ -199,6 +200,7 @@ class Db {
     final index = await _phraseLookup();
     return index[src]?[norm(text)]?['en'];
   }
+
   static Future<void> addHistory(
     String src,
     String tgt,
@@ -336,6 +338,7 @@ class Db {
     String query = '',
     String? category,
     bool favoritesOnly = false,
+    AppLanguage language = AppLanguage.om,
   }) async {
     final db = await open();
     final rawRows = await db.query(
@@ -369,8 +372,8 @@ class Db {
       final version = row['encryption_version'] as int? ?? 0;
       if (isPrivate && version == 1) {
         if (!security.isUnlocked) {
-          row['title'] = '🔒 Yaadannoo iccitii';
-          row['content'] = 'PIN galchiitii yaadannoo bani.';
+          row['title'] = '🔒 ${tr(language, 'locked_note_title')}';
+          row['content'] = tr(language, 'locked_note_content');
         } else {
           try {
             row['title'] = await security.decryptText(
@@ -381,21 +384,22 @@ class Db {
             );
           } on Object {
             // Never expose ciphertext or fall back to plaintext on an error.
-            row['title'] = '🔒 Yaadannoo iccitii';
-            row['content'] = 'Yaadannoo kana banuun hin danda’amne.';
+            row['title'] = '🔒 ${tr(language, 'locked_note_title')}';
+            row['content'] = tr(language, 'locked_note_error');
           }
         }
       } else if (isPrivate) {
         // Legacy plaintext private notes are hidden until the owner sets up PIN
         // and the transactional migration encrypts them.
-        row['title'] = '🔒 Yaadannoo iccitii durii';
-        row['content'] = 'PIN qopheessiitii yaadannoo iccitii eegsiisi.';
+        row['title'] = '🔒 ${tr(language, 'locked_note_legacy_title')}';
+        row['content'] = tr(language, 'locked_note_legacy_content');
       }
 
       if (q.isNotEmpty) {
         if (isPrivate && !security.isUnlocked) continue;
         final title = (row['title'] as String? ?? '').toLowerCase();
-        final content = notePlainText(row['content'] as String? ?? '').toLowerCase();
+        final content = notePlainText(row['content'] as String? ?? '')
+            .toLowerCase();
         if (!title.contains(q) && !content.contains(q)) continue;
       }
       visible.add(row);
