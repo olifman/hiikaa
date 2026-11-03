@@ -12,6 +12,7 @@ import 'db.dart';
 import 'phrases.dart';
 import 'private_notes_security.dart';
 import 'app_localizations.dart';
+import 'about_developer.dart';
 import 'note_content.dart';
 
 void main() => runApp(const HiikaaApp());
@@ -2428,6 +2429,10 @@ class _SettingsPageState extends State<SettingsPage> {
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: _showAbout,
             ),
+          ),
+          const SizedBox(height: 10),
+          Card(
+            child: AboutDeveloperTile(appLanguage: widget.appLanguage),
           ),
           const SizedBox(height: 24),
           Center(
