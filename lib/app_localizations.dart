@@ -708,6 +708,7 @@ String noteCategoryTitle(AppLanguage language, String category) {
     'Dhuunfaa': 'note_category_personal',
     'Yaada': 'note_category_ideas',
     'Kan Biro': 'note_category_other',
+    'Kan Biroo': 'note_category_other',
   };
 
   final key = keys[category];
