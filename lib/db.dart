@@ -4,6 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import 'phrases.dart';
 import 'private_notes_security.dart';
+import 'note_content.dart';
 
 class Db {
   static Database? _db;
@@ -135,26 +136,69 @@ class Db {
       .replaceAll(RegExp(r'\s+'), ' ')
       .trim();
 
-  static Future<String?> lookup(String text, String src, String tgt) async {
+  static Future<Map<String, Map<String, Map<String, String>>>>
+      _loadPhraseLookup() async {
     final db = await open();
-    final rows = await db.query('phrasebook', columns: [src, tgt]);
-    final q = norm(text);
-    for (final r in rows) {
-      if (norm(r[src] as String) == q) return r[tgt] as String;
+    final rows = await db.query(
+      'phrasebook',
+      columns: ['en', 'om', 'am'],
+      orderBy: 'id ASC',
+    );
+
+    final index = <String, Map<String, Map<String, String>>>{};
+
+    for (final row in rows) {
+      final entry = {
+        'en': row['en'] as String,
+        'om': row['om'] as String,
+        'am': row['am'] as String,
+      };
+
+      for (final lang in ['en', 'om', 'am']) {
+        final key = norm(entry[lang]!);
+        index.putIfAbsent(lang, () => {});
+        index[lang]!.putIfAbsent(key, () => entry);
+      }
     }
-    return null;
+
+    return index;
+  }
+
+  static Future<Map<String, Map<String, Map<String, String>>>>?
+      _phraseLookupFuture;
+
+  static Future<Map<String, Map<String, Map<String, String>>>>
+      _phraseLookup() async {
+    final pending = _phraseLookupFuture;
+    if (pending != null) return pending;
+
+    final future = _loadPhraseLookup();
+    _phraseLookupFuture = future;
+
+    try {
+      return await future;
+    } catch (_) {
+      _phraseLookupFuture = null;
+      rethrow;
+    }
+  }
+
+  static Future<String?> lookup(String text, String src, String tgt) async {
+    if (!['en', 'om', 'am'].contains(src) ||
+        !['en', 'om', 'am'].contains(tgt)) {
+      return null;
+    }
+
+    final index = await _phraseLookup();
+    return index[src]?[norm(text)]?[tgt];
   }
 
   static Future<String?> lookupEn(String text, String src) async {
-    final db = await open();
-    final rows = await db.query('phrasebook', columns: ['en', src]);
-    final q = norm(text);
-    for (final r in rows) {
-      if (norm(r[src] as String) == q) return r['en'] as String;
-    }
-    return null;
-  }
+    if (!['en', 'om', 'am'].contains(src)) return null;
 
+    final index = await _phraseLookup();
+    return index[src]?[norm(text)]?['en'];
+  }
   static Future<void> addHistory(
     String src,
     String tgt,
@@ -325,7 +369,7 @@ class Db {
       final version = row['encryption_version'] as int? ?? 0;
       if (isPrivate && version == 1) {
         if (!security.isUnlocked) {
-          row['title'] = 'Ã°Å¸â€â€™ Yaadannoo iccitii';
+          row['title'] = '🔒 Yaadannoo iccitii';
           row['content'] = 'PIN galchiitii yaadannoo bani.';
         } else {
           try {
@@ -337,21 +381,21 @@ class Db {
             );
           } on Object {
             // Never expose ciphertext or fall back to plaintext on an error.
-            row['title'] = 'Ã°Å¸â€â€™ Yaadannoo iccitii';
-            row['content'] = 'Yaadannoo kana banuun hin dandaÃ¢â‚¬â„¢amne.';
+            row['title'] = '🔒 Yaadannoo iccitii';
+            row['content'] = 'Yaadannoo kana banuun hin danda’amne.';
           }
         }
       } else if (isPrivate) {
         // Legacy plaintext private notes are hidden until the owner sets up PIN
         // and the transactional migration encrypts them.
-        row['title'] = 'Ã°Å¸â€â€™ Yaadannoo iccitii durii';
+        row['title'] = '🔒 Yaadannoo iccitii durii';
         row['content'] = 'PIN qopheessiitii yaadannoo iccitii eegsiisi.';
       }
 
       if (q.isNotEmpty) {
         if (isPrivate && !security.isUnlocked) continue;
         final title = (row['title'] as String? ?? '').toLowerCase();
-        final content = (row['content'] as String? ?? '').toLowerCase();
+        final content = notePlainText(row['content'] as String? ?? '').toLowerCase();
         if (!title.contains(q) && !content.contains(q)) continue;
       }
       visible.add(row);

@@ -1,9 +1,17 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'phrasebook_page.dart';
+
 import 'package:flutter/services.dart';
+
 import 'db.dart';
 import 'phrases.dart';
 import 'private_notes_security.dart';
+import 'app_localizations.dart';
+import 'note_content.dart';
 
 void main() => runApp(const HiikaaApp());
 
@@ -15,18 +23,136 @@ const langLabel = {
   Lang.am: '\u12A0\u121B\u122D\u129B',
 };
 
-class HiikaaApp extends StatelessWidget {
+class HiikaaApp extends StatefulWidget {
   const HiikaaApp({super.key});
+
   @override
-  Widget build(BuildContext context) => MaterialApp(
-        title: 'Hiikaa',
-        theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green, fontFamily: 'NotoSansEthiopic'),
-        home: const HomePage(),
+  State<HiikaaApp> createState() => _HiikaaAppState();
+}
+
+class _HiikaaAppState extends State<HiikaaApp> {
+  bool isDark = false;
+  double fontScale = 1.0;
+  AppLanguage appLanguage = AppLanguage.en;
+  bool settingsLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      isDark = prefs.getBool('hiikaa_dark_theme') ?? false;
+      fontScale = prefs.getDouble('hiikaa_font_scale') ?? 1.0;
+
+      final savedLanguage = prefs.getString('hiikaa_app_language') ?? 'en';
+      appLanguage = AppLanguage.values.firstWhere(
+        (language) => language.name == savedLanguage,
+        orElse: () => AppLanguage.en,
       );
+
+      settingsLoaded = true;
+    });
+  }
+
+  Future<void> _setDark(bool value) async {
+    setState(() => isDark = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hiikaa_dark_theme', value);
+  }
+
+  Future<void> _setFontScale(double value) async {
+    setState(() => fontScale = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('hiikaa_font_scale', value);
+  }
+
+  Future<void> _setAppLanguage(AppLanguage value) async {
+    setState(() => appLanguage = value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('hiikaa_app_language', value.name);
+  }
+
+  ThemeData _makeTheme(Brightness brightness) {
+    final isLight = brightness == Brightness.light;
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF246B45),
+        brightness: brightness,
+      ),
+      scaffoldBackgroundColor: isLight
+          ? const Color(0xFFF4F8F5)
+          : const Color(0xFF121A15),
+      fontFamily: 'NotoSansEthiopic',
+      appBarTheme: AppBarTheme(
+        backgroundColor: isLight
+            ? const Color(0xFFF4F8F5)
+            : const Color(0xFF121A15),
+        foregroundColor: isLight ? const Color(0xFF1D3528) : Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        titleTextStyle: TextStyle(
+          color: isLight ? const Color(0xFF1D3528) : Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
+          fontFamily: 'NotoSansEthiopic',
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Hiikaa',
+      theme: _makeTheme(Brightness.light),
+      darkTheme: _makeTheme(Brightness.dark),
+      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+      localizationsDelegates:
+          FlutterQuillLocalizations.localizationsDelegates,
+      supportedLocales: FlutterQuillLocalizations.supportedLocales,
+      builder: (context, child) {
+        final media = MediaQuery.of(context);
+        return MediaQuery(
+          data: media.copyWith(textScaler: TextScaler.linear(fontScale)),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+      home: HomePage(
+        isDark: isDark,
+        fontScale: fontScale,
+        appLanguage: appLanguage,
+        onDarkChanged: _setDark,
+        onFontScaleChanged: _setFontScale,
+        onAppLanguageChanged: _setAppLanguage,
+      ),
+    );
+  }
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final bool isDark;
+  final double fontScale;
+  final AppLanguage appLanguage;
+  final ValueChanged<bool> onDarkChanged;
+  final ValueChanged<double> onFontScaleChanged;
+  final ValueChanged<AppLanguage> onAppLanguageChanged;
+
+  const HomePage({
+    super.key,
+    required this.isDark,
+    required this.fontScale,
+    required this.appLanguage,
+    required this.onDarkChanged,
+    required this.onFontScaleChanged,
+    required this.onAppLanguageChanged,
+  });
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -37,23 +163,62 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final pages = <Widget>[
-      const TranslatePage(),
-      const CategoryPhrasebookPage(),
+      TranslatePage(
+        appLanguage: widget.appLanguage,
+        onHistory: () => setState(() => index = 2),
+        onSettings: () => setState(() => index = 5),
+      ),
+      CategoryPhrasebookPage(appLanguage: widget.appLanguage),
       const HistoryPage(),
-      const SentencesPage(),
-      const NotesPage(),
+      SentencesPage(appLanguage: widget.appLanguage),
+      NotesPage(appLanguage: widget.appLanguage),
+      SettingsPage(
+        isDark: widget.isDark,
+        fontScale: widget.fontScale,
+        appLanguage: widget.appLanguage,
+        onDarkChanged: widget.onDarkChanged,
+        onFontScaleChanged: widget.onFontScaleChanged,
+        onAppLanguageChanged: widget.onAppLanguageChanged,
+      ),
     ];
+
     return Scaffold(
       body: pages[index],
       bottomNavigationBar: NavigationBar(
-        selectedIndex: index,
-        onDestinationSelected: (i) => setState(() => index = i),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.translate), label: 'Translate'),
-          NavigationDestination(icon: Icon(Icons.menu_book), label: 'Phrasebook'),
-          NavigationDestination(icon: Icon(Icons.history), label: 'History'),
-          NavigationDestination(icon: Icon(Icons.article_outlined), label: 'Sentences'),
-          NavigationDestination(icon: Icon(Icons.edit_note_rounded), label: 'Notes'),
+        height: 74,
+        elevation: 3,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        indicatorColor: Theme.of(context).colorScheme.primaryContainer,
+        surfaceTintColor: Colors.transparent,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        selectedIndex: index == 0
+            ? 0
+            : index == 1
+            ? 1
+            : index == 3
+            ? 2
+            : index == 4
+            ? 3
+            : 0,
+        onDestinationSelected: (i) => setState(() => index = [0, 1, 3, 4][i]),
+        destinations: [
+          NavigationDestination(
+            icon: Icon(Icons.translate),
+            label: tr(widget.appLanguage, 'translate'),
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.menu_book),
+            label: tr(widget.appLanguage, 'phrasebook'),
+          ),
+
+          NavigationDestination(
+            icon: Icon(Icons.article_outlined),
+            label: tr(widget.appLanguage, 'sentences'),
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.edit_note_rounded),
+            label: tr(widget.appLanguage, 'notes'),
+          ),
         ],
       ),
     );
@@ -61,7 +226,16 @@ class _HomePageState extends State<HomePage> {
 }
 
 class TranslatePage extends StatefulWidget {
-  const TranslatePage({super.key});
+  final AppLanguage appLanguage;
+  final VoidCallback onHistory;
+  final VoidCallback onSettings;
+
+  const TranslatePage({
+    super.key,
+    required this.appLanguage,
+    required this.onHistory,
+    required this.onSettings,
+  });
   @override
   State<TranslatePage> createState() => _TranslatePageState();
 }
@@ -74,17 +248,66 @@ class _TranslatePageState extends State<TranslatePage> {
   bool found = false;
   bool verified = false;
 
-  Widget picker(Lang value, ValueChanged<Lang> onChanged) =>
-      DropdownButton<Lang>(
-        value: value,
-        items: [
-          for (final l in Lang.values)
-            DropdownMenuItem(value: l, child: Text(langLabel[l]!)),
-        ],
-        onChanged: (l) => onChanged(l!),
-      );
+  Widget picker(Lang value, ValueChanged<Lang> onChanged) {
+    return Container(
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 9),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F8F5),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE1EBE3)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<Lang>(
+          value: value,
+          isExpanded: true,
+          icon: const Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Color(0xFF246B45),
+            size: 20,
+          ),
+          iconSize: 20,
+          borderRadius: BorderRadius.circular(14),
+          dropdownColor: Colors.white,
+          style: const TextStyle(
+            color: Color(0xFF1D3528),
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
+          selectedItemBuilder: (context) => [
+            for (final l in Lang.values)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  langLabel[l]!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                ),
+              ),
+          ],
+          items: [
+            for (final l in Lang.values)
+              DropdownMenuItem<Lang>(
+                value: l,
+                child: Text(
+                  langLabel[l]!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
+          onChanged: (l) {
+            if (l != null) onChanged(l);
+          },
+        ),
+      ),
+    );
+  }
 
   Future<void> translate() async {
+    FocusScope.of(context).unfocus();
+
     final text = controller.text.trim();
     if (text.isEmpty) return;
     final r = await Db.lookup(text, src.name, tgt.name);
@@ -93,7 +316,9 @@ class _TranslatePageState extends State<TranslatePage> {
     setState(() {
       found = r != null;
       verified = en != null && verifiedEn.contains(en);
-      output = r ?? 'Not in phrasebook yet. The AI model will be added in a later stage.';
+      output =
+          r ??
+          'Not in phrasebook yet. The AI model will be added in a later stage.';
     });
     if (r != null) {
       await Db.addHistory(src.name, tgt.name, text, r);
@@ -102,72 +327,247 @@ class _TranslatePageState extends State<TranslatePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Hiikaa'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.info_outline),
-              onPressed: () => showDialog(
-                context: context,
-                builder: (c) => AlertDialog(
-                  title: const Text('About Hiikaa'),
-                  content: const Text(
-                      'Offline translator for English, Afaan Oromoo and Amharic.\n\nVersion 0.3 (beta)\nWorks without internet. Do not rely on them for medical or legal decisions.'),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(c),
-                        child: const Text('OK')),
+    resizeToAvoidBottomInset: true,
+    appBar: AppBar(
+      title: const Text('Hiikaa'),
+      actions: [
+        IconButton(
+          tooltip: 'History',
+          icon: const Icon(Icons.history_rounded),
+          onPressed: widget.onHistory,
+        ),
+        IconButton(
+          tooltip: 'Settings',
+          icon: const Icon(Icons.settings_outlined),
+          onPressed: widget.onSettings,
+        ),
+        IconButton(
+          tooltip: 'About Hiikaa',
+          icon: const Icon(Icons.info_outline_rounded),
+          onPressed: () => showDialog(
+            context: context,
+            builder: (c) => AlertDialog(
+              title: Text(tr(widget.appLanguage, 'about_hiikaa')),
+              content: const Text(
+                'Offline translator for English, Afaan Oromoo and Amharic.\n\nVersion 0.3 (beta)\nWorks without internet. Do not rely on them for medical or legal decisions.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(c),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+      ],
+    ),
+    body: ListView(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF1D6844), Color(0xFF39966B)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF246B45).withValues(alpha: 0.16),
+                blurRadius: 18,
+                offset: const Offset(0, 7),
+              ),
+            ],
+          ),
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.translate_rounded, color: Colors.white, size: 24),
+              SizedBox(height: 12),
+              Text(
+                'Break language barriers.',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              SizedBox(height: 5),
+              Text(
+                'Translate between English, Afaan Oromoo and Amharic.',
+                style: TextStyle(color: Colors.white, height: 1.45),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE1EBE3)),
+          ),
+          child: Row(
+            children: [
+              Expanded(child: picker(src, (l) => setState(() => src = l))),
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAF4ED),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: IconButton(
+                  tooltip: 'Swap languages',
+                  icon: const Icon(
+                    Icons.swap_horiz_rounded,
+                    color: Color(0xFF246B45),
+                  ),
+                  onPressed: () => setState(() {
+                    final t = src;
+                    src = tgt;
+                    tgt = t;
+                  }),
+                ),
+              ),
+              Expanded(child: picker(tgt, (l) => setState(() => tgt = l))),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE1EBE3)),
+          ),
+          child: TextField(
+            controller: controller,
+            minLines: 3,
+            maxLines: 5,
+            decoration: InputDecoration(
+              labelText: 'Enter text',
+              hintText: 'Type a word or phrase...',
+              prefixIcon: const Icon(
+                Icons.edit_note_rounded,
+                color: Color(0xFF39815A),
+              ),
+              filled: true,
+              fillColor: const Color(0xFFF7FAF7),
+              contentPadding: const EdgeInsets.all(16),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(color: Color(0xFFE5EDE7)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(
+                  color: Color(0xFF39815A),
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 54,
+          child: FilledButton.icon(
+            onPressed: translate,
+            icon: const Icon(Icons.translate_rounded),
+            label: const Text(
+              'Translate',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF246B45),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+        ),
+        if (output.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFDCE9DF)),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF244D34).withValues(alpha: 0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle_outline_rounded,
+                      color: Color(0xFF39815A),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Translation result',
+                        style: TextStyle(
+                          color: Color(0xFF246B45),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                    if (found)
+                      IconButton(
+                        tooltip: 'Copy',
+                        icon: const Icon(
+                          Icons.copy_rounded,
+                          color: Color(0xFF39815A),
+                        ),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: output));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Copied')),
+                          );
+                        },
+                      ),
                   ],
                 ),
-              ),
-            ),
-          ],
-        ),
-        body: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Row(children: [
-              picker(src, (l) => setState(() => src = l)),
-              IconButton(
-                icon: const Icon(Icons.swap_horiz),
-                onPressed: () => setState(() {
-                  final t = src;
-                  src = tgt;
-                  tgt = t;
-                }),
-              ),
-              picker(tgt, (l) => setState(() => tgt = l)),
-            ]),
-            const SizedBox(height: 12),
-            TextField(
-              controller: controller,
-              minLines: 2,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                  border: OutlineInputBorder(), labelText: 'Text'),
-            ),
-            const SizedBox(height: 12),
-            FilledButton(onPressed: translate, child: const Text('Translate')),
-            const SizedBox(height: 16),
-            Text(output, style: Theme.of(context).textTheme.titleLarge),
-            if (found)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  icon: const Icon(Icons.copy),
-                  label: const Text('Copy'),
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: output));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Copied')));
-                  },
+                const SizedBox(height: 10),
+                Text(
+                  output,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: const Color(0xFF20392A),
+                    fontWeight: FontWeight.w600,
+                    height: 1.5,
+                  ),
                 ),
-              ),
-            const SizedBox(height: 24),
-
-          ],
-        ),
-      );
+              ],
+            ),
+          ),
+        ],
+      ],
+    ),
+  );
 }
 
 class PhrasebookPage extends StatefulWidget {
@@ -181,83 +581,101 @@ class _PhrasebookPageState extends State<PhrasebookPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Phrasebook')),
-        body: Column(children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              onChanged: (v) => setState(() => query = v),
-              decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
-                  hintText: 'Search'),
+    resizeToAvoidBottomInset: true,
+    appBar: AppBar(title: const Text('Phrasebook')),
+    body: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: TextField(
+            onChanged: (v) => setState(() => query = v),
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(),
+              hintText: 'Search',
             ),
           ),
-          Expanded(
-            child: FutureBuilder<List<Map<String, Object?>>>(
-              future: Db.phrases(query),
-              builder: (context, snap) {
-                if (snap.hasError) {
-                  return Center(child: Text('Error: ${snap.error}'));
-                }
-                if (!snap.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final rows = snap.data!;
-                if (rows.isEmpty) {
-                  return const Center(child: Text('No phrases found'));
-                }
-                return ListView.separated(
-                  itemCount: rows.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
-                  itemBuilder: (context, i) {
-                    final r = rows[i];
-                    return ListTile(
-                      isThreeLine: true,
-                      title: Text(r['en'] as String),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(r['om'] as String),
-                          Text(
-                            r['am'] as String,
-                            style: const TextStyle(
-                              fontFamily: 'NotoSansEthiopic',
-                              fontSize: 16,
-                            ),
+        ),
+        Expanded(
+          child: FutureBuilder<List<Map<String, Object?>>>(
+            future: Db.phrases(query),
+            builder: (context, snap) {
+              if (snap.hasError) {
+                return Center(child: Text('Error: ${snap.error}'));
+              }
+              if (!snap.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final rows = snap.data!;
+              if (rows.isEmpty) {
+                return const Center(child: Text('No phrases found'));
+              }
+              return ListView.separated(
+                itemCount: rows.length,
+                separatorBuilder: (_, _) => const Divider(height: 1),
+                itemBuilder: (context, i) {
+                  final r = rows[i];
+                  return ListTile(
+                    isThreeLine: true,
+                    title: Text(r['en'] as String),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(r['om'] as String),
+                        Text(
+                          r['am'] as String,
+                          style: const TextStyle(
+                            fontFamily: 'NotoSansEthiopic',
+                            fontSize: 16,
                           ),
-                        ],
-                      ),
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(r['category'] as String,
-                              style: Theme.of(context).textTheme.labelSmall),
-                          const SizedBox(height: 4),
-                          verifiedEn.contains(r['en'])
-                              ? const Text('\u2713 Verified',
-                                  style: TextStyle(
-                                      color: Colors.green, fontSize: 11))
-                              : const Text('Draft',
-                                  style: TextStyle(
-                                      color: Colors.orange, fontSize: 11)),
-                        ],
-                      ),
-                      onLongPress: () {
-                        Clipboard.setData(ClipboardData(
-                            text: '${r['en']}\n${r['om']}\n${r['am']}'));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Copied')));
-                      },
-                    );
-                  },
-                );
-              },
-            ),
+                        ),
+                      ],
+                    ),
+                    trailing: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          r['category'] as String,
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                        const SizedBox(height: 4),
+                        verifiedEn.contains(r['en'])
+                            ? const Text(
+                                '\u2713 Verified',
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 11,
+                                ),
+                              )
+                            : const Text(
+                                'Draft',
+                                style: TextStyle(
+                                  color: Colors.orange,
+                                  fontSize: 11,
+                                ),
+                              ),
+                      ],
+                    ),
+                    onLongPress: () {
+                      Clipboard.setData(
+                        ClipboardData(
+                          text: '${r['en']}\n${r['om']}\n${r['am']}',
+                        ),
+                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(const SnackBar(content: Text('Copied')));
+                    },
+                  );
+                },
+              );
+            },
           ),
-        ]),
-      );
+        ),
+      ],
+    ),
+  );
 }
 
 class HistoryPage extends StatefulWidget {
@@ -271,57 +689,63 @@ class _HistoryPageState extends State<HistoryPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('History'),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                await Db.clearHistory();
-                setState(() {});
-              },
-              child: const Text('Clear all'),
-            ),
-          ],
+    resizeToAvoidBottomInset: true,
+    appBar: AppBar(
+      title: const Text('History'),
+      actions: [
+        TextButton(
+          onPressed: () async {
+            await Db.clearHistory();
+            setState(() {});
+          },
+          child: const Text('Clear all'),
         ),
-        body: Column(children: [
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(children: [
+      ],
+    ),
+    body: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: [
               FilterChip(
                 label: const Text('Favorites only'),
                 selected: favOnly,
                 onSelected: (v) => setState(() => favOnly = v),
               ),
-            ]),
+            ],
           ),
-          Expanded(
-            child: FutureBuilder<List<Map<String, Object?>>>(
-              future: Db.history(favoritesOnly: favOnly),
-              builder: (context, snap) {
-                if (snap.hasError) {
-                  return Center(child: Text('Error: ${snap.error}'));
-                }
-                if (!snap.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final rows = snap.data!;
-                if (rows.isEmpty) {
-                  return const Center(child: Text('Nothing here yet'));
-                }
-                return ListView.separated(
-                  itemCount: rows.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
-                  itemBuilder: (context, i) {
-                    final r = rows[i];
-                    final id = r['id'] as int;
-                    final fav = (r['favorite'] as int) == 1;
-                    final dir =
-                        '${(r['src_lang'] as String).toUpperCase()} \u2192 ${(r['tgt_lang'] as String).toUpperCase()}';
-                    return ListTile(
-                      title: Text(r['src_text'] as String),
-                      subtitle: Text('${r['tgt_text']}\n$dir'),
-                      isThreeLine: true,
-                      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+        ),
+        Expanded(
+          child: FutureBuilder<List<Map<String, Object?>>>(
+            future: Db.history(favoritesOnly: favOnly),
+            builder: (context, snap) {
+              if (snap.hasError) {
+                return Center(child: Text('Error: ${snap.error}'));
+              }
+              if (!snap.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final rows = snap.data!;
+              if (rows.isEmpty) {
+                return const Center(child: Text('Nothing here yet'));
+              }
+              return ListView.separated(
+                itemCount: rows.length,
+                separatorBuilder: (_, _) => const Divider(height: 1),
+                itemBuilder: (context, i) {
+                  final r = rows[i];
+                  final id = r['id'] as int;
+                  final fav = (r['favorite'] as int) == 1;
+                  final dir =
+                      '${(r['src_lang'] as String).toUpperCase()} \u2192 ${(r['tgt_lang'] as String).toUpperCase()}';
+                  return ListTile(
+                    title: Text(r['src_text'] as String),
+                    subtitle: Text('${r['tgt_text']}\n$dir'),
+                    isThreeLine: true,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         IconButton(
                           icon: Icon(fav ? Icons.star : Icons.star_border),
                           onPressed: () async {
@@ -336,19 +760,22 @@ class _HistoryPageState extends State<HistoryPage> {
                             setState(() {});
                           },
                         ),
-                      ]),
-                    );
-                  },
-                );
-              },
-            ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
           ),
-        ]),
-      );
+        ),
+      ],
+    ),
+  );
 }
 
 class SentencesPage extends StatefulWidget {
-  const SentencesPage({super.key});
+  final AppLanguage appLanguage;
+  const SentencesPage({super.key, required this.appLanguage});
 
   @override
   State<SentencesPage> createState() => _SentencesPageState();
@@ -408,266 +835,254 @@ class _SentencesPageState extends State<SentencesPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        backgroundColor: const Color(0xFFF6F8FC),
-        appBar: AppBar(
-          title: const Text(
-            'Sentences',
-            style: TextStyle(fontWeight: FontWeight.w700),
-          ),
-          centerTitle: false,
-          backgroundColor: const Color(0xFFF6F8FC),
-          surfaceTintColor: Colors.transparent,
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
-              child: TextField(
-                onChanged: (v) => setState(() {
-                  query = v;
-                  page = 0;
-                }),
-                decoration: InputDecoration(
-                  hintText: 'Search sentences in any language',
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE1E7F0),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF3977D5),
-                      width: 1.5,
-                    ),
-                  ),
+    backgroundColor: const Color(0xFFF6F8FC),
+    appBar: AppBar(
+      title: const Text(
+        'Sentences',
+        style: TextStyle(fontWeight: FontWeight.w700),
+      ),
+      centerTitle: false,
+      backgroundColor: const Color(0xFFF6F8FC),
+      surfaceTintColor: Colors.transparent,
+    ),
+    body: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
+          child: TextField(
+            onChanged: (v) => setState(() {
+              query = v;
+              page = 0;
+            }),
+            decoration: InputDecoration(
+              hintText: 'Search sentences in any language',
+              prefixIcon: const Icon(Icons.search),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(vertical: 16),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: const BorderSide(color: Color(0xFFE1E7F0)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: const BorderSide(
+                  color: Color(0xFF3977D5),
+                  width: 1.5,
                 ),
               ),
             ),
-            Expanded(
-              child: FutureBuilder<List<Map<String, Object?>>>(
-                future: Db.sentences(query),
-                builder: (context, snap) {
-                  if (query.trim().length < 2) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(24),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.menu_book_rounded,
-                              size: 54,
-                              color: Color(0xFF3977D5),
-                            ),
-                            SizedBox(height: 12),
-                            Text(
-                              'Explore sentences',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            SizedBox(height: 6),
-                            Text(
-                              'Search a word to see it in Afaan Oromoo, English and Amharic.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xFF687386),
-                                height: 1.5,
-                              ),
-                            ),
-                          ],
+          ),
+        ),
+        Expanded(
+          child: FutureBuilder<List<Map<String, Object?>>>(
+            future: Db.sentences(query),
+            builder: (context, snap) {
+              if (query.trim().length < 2) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.menu_book_rounded,
+                          size: 54,
+                          color: Color(0xFF3977D5),
                         ),
-                      ),
-                    );
-                  }
-
-                  if (snap.hasError) {
-                    return Center(child: Text('Error: ${snap.error}'));
-                  }
-                  if (!snap.hasData) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-
-                  final rows = snap.data!;
-                  if (rows.isEmpty) {
-                    return const Center(
-                      child: Text('No sentences found'),
-                    );
-                  }
-
-                  final pageCount = (rows.length / pageSize).ceil();
-                  final safePage = page >= pageCount ? pageCount - 1 : page;
-                  final pageRows = rows
-                      .skip(safePage * pageSize)
-                      .take(pageSize)
-                      .toList();
-
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.library_books_outlined,
-                              size: 18,
-                              color: Color(0xFF64748B),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${rows.length} sentences found',
-                              style: const TextStyle(
-                                color: Color(0xFF64748B),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
+                        SizedBox(height: 12),
+                        Text(
+                          'Explore sentences',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(14, 2, 14, 12),
-                          itemCount: pageRows.length,
-                          itemBuilder: (context, i) {
-                            final r = pageRows[i];
-                            return Card(
-                              elevation: 0,
-                              margin: const EdgeInsets.only(bottom: 14),
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: const BorderSide(
-                                  color: Color(0xFFE7EBF2),
-                                ),
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                        SizedBox(height: 6),
+                        Text(
+                          'Search a word to see it in Afaan Oromoo, English and Amharic.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Color(0xFF687386),
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              if (snap.hasError) {
+                return Center(child: Text('Error: ${snap.error}'));
+              }
+              if (!snap.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final rows = snap.data!;
+              if (rows.isEmpty) {
+                return const Center(child: Text('No sentences found'));
+              }
+
+              final pageCount = (rows.length / pageSize).ceil();
+              final safePage = page >= pageCount ? pageCount - 1 : page;
+              final pageRows = rows
+                  .skip(safePage * pageSize)
+                  .take(pageSize)
+                  .toList();
+
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.library_books_outlined,
+                          size: 18,
+                          color: Color(0xFF64748B),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${rows.length} sentences found',
+                          style: const TextStyle(
+                            color: Color(0xFF64748B),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(14, 2, 14, 12),
+                      itemCount: pageRows.length,
+                      itemBuilder: (context, i) {
+                        final r = pageRows[i];
+                        return Card(
+                          elevation: 0,
+                          margin: const EdgeInsets.only(bottom: 14),
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: const BorderSide(color: Color(0xFFE7EBF2)),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
                                   children: [
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 32,
-                                          height: 32,
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFEEF2FF),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: Text(
-                                            '${safePage * pageSize + i + 1}',
-                                            style: const TextStyle(
-                                              color: Color(0xFF4356A6),
-                                              fontWeight: FontWeight.w800,
-                                            ),
-                                          ),
+                                    Container(
+                                      width: 32,
+                                      height: 32,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFEEF2FF),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        '${safePage * pageSize + i + 1}',
+                                        style: const TextStyle(
+                                          color: Color(0xFF4356A6),
+                                          fontWeight: FontWeight.w800,
                                         ),
-                                        const SizedBox(width: 10),
-                                        const Text(
-                                          'Sentence',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 15,
-                                            color: Color(0xFF344054),
-                                          ),
-                                        ),
-                                      ],
+                                      ),
                                     ),
-                                    const SizedBox(height: 12),
-                                    _languagePanel(
-                                      label: 'AFaan OROMOO',
-                                      text: '${r['om'] ?? ''}',
-                                      background: const Color(0xFFEAF7EE),
-                                      accent: const Color(0xFF247447),
-                                      icon: Icons.menu_book_rounded,
-                                    ),
-                                    const SizedBox(height: 9),
-                                    _languagePanel(
-                                      label: 'ENGLISH',
-                                      text: '${r['en'] ?? ''}',
-                                      background: const Color(0xFFEBF3FF),
-                                      accent: const Color(0xFF245FC0),
-                                      icon: Icons.translate_rounded,
-                                    ),
-                                    const SizedBox(height: 9),
-                                    _languagePanel(
-                                      label: '???? ? AMHARIC',
-                                      text: '${r['am'] ?? ''}',
-                                      background: const Color(0xFFFFF3E5),
-                                      accent: const Color(0xFF9A5B16),
-                                      icon: Icons.language_rounded,
+                                    const SizedBox(width: 10),
+                                    const Text(
+                                      'Sentence',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                        color: Color(0xFF344054),
+                                      ),
                                     ),
                                   ],
                                 ),
-                              ),
-                            );
-                          },
+                                const SizedBox(height: 8),
+                                _languagePanel(
+                                  label: 'AFaan OROMOO',
+                                  text: '${r['om'] ?? ''}',
+                                  background: const Color(0xFFEAF7EE),
+                                  accent: const Color(0xFF247447),
+                                  icon: Icons.menu_book_rounded,
+                                ),
+                                const SizedBox(height: 9),
+                                _languagePanel(
+                                  label: 'ENGLISH',
+                                  text: '${r['en'] ?? ''}',
+                                  background: const Color(0xFFEBF3FF),
+                                  accent: const Color(0xFF245FC0),
+                                  icon: Icons.translate_rounded,
+                                ),
+                                const SizedBox(height: 9),
+                                _languagePanel(
+                                  label: 'አማርኛ / AMHARIC',
+                                  text: '${r['am'] ?? ''}',
+                                  background: const Color(0xFFFFF3E5),
+                                  accent: const Color(0xFF9A5B16),
+                                  icon: Icons.language_rounded,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      border: Border(top: BorderSide(color: Color(0xFFE7EBF2))),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: safePage > 0
+                              ? () => setState(() => page = safePage - 1)
+                              : null,
+                          icon: const Icon(Icons.chevron_left),
+                          label: const Text('Previous'),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                            top: BorderSide(color: Color(0xFFE7EBF2)),
+                        Flexible(
+                          child: Text(
+                            '${safePage + 1} / $pageCount',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF475467),
+                            ),
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            OutlinedButton.icon(
-                              onPressed: safePage > 0
-                                  ? () => setState(() => page = safePage - 1)
-                                  : null,
-                              icon: const Icon(Icons.chevron_left),
-                              label: const Text('Previous'),
-                            ),
-                            Flexible(
-                              child: Text(
-                                '${safePage + 1} / $pageCount',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF475467),
-                                ),
-                              ),
-                            ),
-                            FilledButton.icon(
-                              onPressed: safePage < pageCount - 1
-                                  ? () => setState(() => page = safePage + 1)
-                                  : null,
-                              icon: const Icon(Icons.chevron_right),
-                              label: const Text('Next'),
-                            ),
-                          ],
+                        FilledButton.icon(
+                          onPressed: safePage < pageCount - 1
+                              ? () => setState(() => page = safePage + 1)
+                              : null,
+                          icon: const Icon(Icons.chevron_right),
+                          label: const Text('Next'),
                         ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ],
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
-      );
+      ],
+    ),
+  );
 }
-
 
 const _noteCategories = <String>[
   'Mana Amantii',
@@ -679,7 +1094,16 @@ const _noteCategories = <String>[
 ];
 
 const _noteIcons = <String>[
-  '??', '?', '??', '??', '??', '??', '??', '?', '??', '??',
+  '??',
+  '?',
+  '??',
+  '??',
+  '??',
+  '??',
+  '??',
+  '?',
+  '??',
+  '??',
 ];
 
 const _noteColors = <int>[
@@ -694,7 +1118,9 @@ const _noteColors = <int>[
 ];
 
 class _PinEntryDialog extends StatefulWidget {
-  const _PinEntryDialog();
+  const _PinEntryDialog({required this.appLanguage});
+
+  final AppLanguage appLanguage;
 
   @override
   State<_PinEntryDialog> createState() => _PinEntryDialogState();
@@ -718,7 +1144,7 @@ class _PinEntryDialogState extends State<_PinEntryDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('PIN galchi'),
+      title: Text(tr(widget.appLanguage, 'pin_enter_title')),
       content: TextField(
         controller: controller,
         autofocus: true,
@@ -732,22 +1158,25 @@ class _PinEntryDialogState extends State<_PinEntryDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Dhiisi'),
+          child: Text(tr(widget.appLanguage, 'cancel')),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, '__RECOVER__'),
-          child: const Text('PIN dagadhe?'),
+          child: Text(tr(widget.appLanguage, 'forgot_pin')),
         ),
         FilledButton(
           onPressed: () => Navigator.pop(context, controller.text.trim()),
-          child: const Text('Bani'),
+          child: Text(tr(widget.appLanguage, 'unlock')),
         ),
       ],
     );
   }
 }
+
 class NotesPage extends StatefulWidget {
-  const NotesPage({super.key});
+  const NotesPage({super.key, required this.appLanguage});
+
+  final AppLanguage appLanguage;
 
   @override
   State<NotesPage> createState() => _NotesPageState();
@@ -773,7 +1202,7 @@ class _NotesPageState extends State<NotesPage> {
       if (!ok) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('PIN sirrii miti.')),
+            SnackBar(content: Text(tr(widget.appLanguage, 'wrong_pin'))),
           );
         }
         return false;
@@ -791,14 +1220,14 @@ class _NotesPageState extends State<NotesPage> {
           context: context,
           barrierDismissible: false,
           builder: (context) => AlertDialog(
-            title: const Text('Recovery code kee'),
+            title: Text(tr(widget.appLanguage, 'recovery_code_title')),
             content: SelectableText(
-              '$recoveryCode\n\nKoodii kana bakka nageenya qabu irratti kuusi. PIN yoo dagatte si gargaara. Amma booda guutummaatti irra deebitee argachuun hin dandaâ€™amu.',
+              '$recoveryCode\n\nKoodii kana bakka nageenya qabu irratti kuusi. PIN yoo dagatte si gargaara. Amma booda guutummaatti irra deebitee argachuun hin danda’amu.',
             ),
             actions: [
               FilledButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Kuuseera'),
+                child: Text(tr(widget.appLanguage, 'recovery_code_saved')),
               ),
             ],
           ),
@@ -820,7 +1249,7 @@ class _NotesPageState extends State<NotesPage> {
   Future<String?> _showPinDialog() async {
     final result = await showDialog<String>(
       context: context,
-      builder: (_) => const _PinEntryDialog(),
+      builder: (_) => _PinEntryDialog(appLanguage: widget.appLanguage),
     );
 
     if (result == '__RECOVER__') {
@@ -837,29 +1266,54 @@ class _NotesPageState extends State<NotesPage> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('PIN iccitii qopheessi'),
+          title: Text(tr(widget.appLanguage, 'pin_setup_title')),
+          scrollable: true,
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('PIN lakkoofsa 6â€“12 qabu filadhu.'),
-              TextField(controller: pin, keyboardType: TextInputType.number, obscureText: true, maxLength: 12, decoration: const InputDecoration(labelText: 'PIN haaraa')),
-              TextField(controller: confirm, keyboardType: TextInputType.number, obscureText: true, maxLength: 12, decoration: const InputDecoration(labelText: 'PIN irra deebiâ€™i')),
-              if (error != null) Text(error!, style: const TextStyle(color: Colors.red)),
+              const Text(
+                'PIN lakkoofsa 6 hanga 12 qabu filadhu.',
+              ),
+              TextField(
+                controller: pin,
+                keyboardType: TextInputType.number,
+                obscureText: true,
+                maxLength: 12,
+                decoration: InputDecoration(
+                  labelText: tr(widget.appLanguage, 'new_pin'),
+                ),
+              ),
+              TextField(
+                controller: confirm,
+                keyboardType: TextInputType.number,
+                obscureText: true,
+                maxLength: 12,
+                decoration: const InputDecoration(
+                  labelText: 'PIN irra deebi galchi',
+                ),
+              ),
+              if (error != null)
+                Text(error!, style: const TextStyle(color: Colors.red)),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Dhiisi')),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(tr(widget.appLanguage, 'cancel')),
+            ),
             FilledButton(
               onPressed: () {
                 if (!RegExp(r'^\d{6,12}$').hasMatch(pin.text.trim())) {
-                  setDialogState(() => error = 'PIN lakkoofsa 6â€“12 taâ€™uu qaba.');
+                  setDialogState(
+                    () => error = 'PIN lakkoofsa 6 hanga 12 ta’e qabaachuu qaba.',
+                  );
                 } else if (pin.text.trim() != confirm.text.trim()) {
                   setDialogState(() => error = 'PIN lamaan wal hin fakkaatan.');
                 } else {
                   Navigator.pop(context, pin.text.trim());
                 }
               },
-              child: const Text('Qopheessi'),
+              child: Text(tr(widget.appLanguage, 'setup_pin')),
             ),
           ],
         ),
@@ -879,29 +1333,57 @@ class _NotesPageState extends State<NotesPage> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Recovery code fayyadami'),
+          title: Text(tr(widget.appLanguage, 'use_recovery_code')),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: code, textCapitalization: TextCapitalization.characters, decoration: const InputDecoration(labelText: 'Recovery code')),
-              TextField(controller: pin, keyboardType: TextInputType.number, obscureText: true, maxLength: 12, decoration: const InputDecoration(labelText: 'PIN haaraa')),
-              TextField(controller: confirm, keyboardType: TextInputType.number, obscureText: true, maxLength: 12, decoration: const InputDecoration(labelText: 'PIN haaraa irra deebiâ€™i')),
-              if (error != null) Text(error!, style: const TextStyle(color: Colors.red)),
+              TextField(
+                controller: code,
+                textCapitalization: TextCapitalization.characters,
+                decoration: InputDecoration(
+                  labelText: tr(widget.appLanguage, 'recovery_code_label'),
+                ),
+              ),
+              TextField(
+                controller: pin,
+                keyboardType: TextInputType.number,
+                obscureText: true,
+                maxLength: 12,
+                decoration: InputDecoration(
+                  labelText: tr(widget.appLanguage, 'new_pin'),
+                ),
+              ),
+              TextField(
+                controller: confirm,
+                keyboardType: TextInputType.number,
+                obscureText: true,
+                maxLength: 12,
+                decoration: const InputDecoration(
+                  labelText: 'PIN haaraa irra deebi’i',
+                ),
+              ),
+              if (error != null)
+                Text(error!, style: const TextStyle(color: Colors.red)),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Dhiisi')),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(tr(widget.appLanguage, 'cancel')),
+            ),
             FilledButton(
               onPressed: () {
                 if (!RegExp(r'^\d{6,12}$').hasMatch(pin.text.trim())) {
-                  setDialogState(() => error = 'PIN lakkoofsa 6â€“12 taâ€™uu qaba.');
+                  setDialogState(
+                    () => error = 'PIN lakkoofsa 6–12 ta’uu qaba.',
+                  );
                 } else if (pin.text.trim() != confirm.text.trim()) {
                   setDialogState(() => error = 'PIN lamaan wal hin fakkaatan.');
                 } else {
                   Navigator.pop(context, [code.text.trim(), pin.text.trim()]);
                 }
               },
-              child: const Text('PIN jijjiiri'),
+              child: Text(tr(widget.appLanguage, 'change_pin')),
             ),
           ],
         ),
@@ -911,9 +1393,18 @@ class _NotesPageState extends State<NotesPage> {
     pin.dispose();
     confirm.dispose();
     if (values == null) return false;
-    final ok = await PrivateNotesSecurity.instance.recoverWithCode(values[0], values[1]);
+    final ok = await PrivateNotesSecurity.instance.recoverWithCode(
+      values[0],
+      values[1],
+    );
     if (!ok) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Recovery code sirrii miti.')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(tr(widget.appLanguage, 'recovery_code_error')),
+          ),
+        );
+      }
       return false;
     }
     await Db.encryptLegacyPrivateNotes();
@@ -932,7 +1423,8 @@ class _NotesPageState extends State<NotesPage> {
   }
 
   Future<void> _openEditor([Map<String, Object?>? note]) async {
-    if (note != null && (note['is_private'] as int? ?? 0) == 1 &&
+    if (note != null &&
+        (note['is_private'] as int? ?? 0) == 1 &&
         !PrivateNotesSecurity.instance.isUnlocked) {
       final unlocked = await _ensurePrivateUnlocked();
       if (!unlocked || !mounted) return;
@@ -948,7 +1440,7 @@ class _NotesPageState extends State<NotesPage> {
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => NoteEditor(note: note),
+      builder: (_) => NoteEditor(note: note, appLanguage: widget.appLanguage),
     );
     if (!mounted || result == null) return;
     if ((result['is_private'] as int? ?? 0) == 1 &&
@@ -968,7 +1460,9 @@ class _NotesPageState extends State<NotesPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Yaadannoo olkaaʼuun hin milkoofne: ${e.toString()}'),
+          content: Text(
+            'Yaadannoo olkaa’uun hin milkoofne: ${e.toString()}',
+          ),
           duration: const Duration(seconds: 5),
         ),
       );
@@ -990,16 +1484,18 @@ class _NotesPageState extends State<NotesPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Yaadannoo haquu?'),
-        content: Text('"${note['title']}" haquu barbaaddaa?'),
+        title: Text(tr(widget.appLanguage, 'delete_note_title')),
+        content: Text(
+          '${note['title']} - ${tr(widget.appLanguage, 'delete_note_message')}',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Lakki'),
+            child: Text(tr(widget.appLanguage, 'no')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Haqi'),
+            child: Text(tr(widget.appLanguage, 'delete')),
           ),
         ],
       ),
@@ -1015,19 +1511,25 @@ class _NotesPageState extends State<NotesPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
-        title: const Text(
-          'My Notes',
+        title: Text(
+          tr(widget.appLanguage, 'notes'),
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
         backgroundColor: const Color(0xFFF7F8FC),
         actions: [
           IconButton(
-            tooltip: PrivateNotesSecurity.instance.isUnlocked ? 'Yaadannoo iccitii cufi' : 'PIN / Yaadannoo iccitii',
+            tooltip: PrivateNotesSecurity.instance.isUnlocked
+                ? tr(widget.appLanguage, 'lock_private_notes')
+                : tr(widget.appLanguage, 'private_notes_access'),
             onPressed: _managePrivateAccess,
-            icon: Icon(PrivateNotesSecurity.instance.isUnlocked ? Icons.lock_open_rounded : Icons.lock_outline_rounded),
+            icon: Icon(
+              PrivateNotesSecurity.instance.isUnlocked
+                  ? Icons.lock_open_rounded
+                  : Icons.lock_outline_rounded,
+            ),
           ),
           IconButton(
-            tooltip: 'Favorites only',
+            tooltip: tr(widget.appLanguage, 'favorites_only'),
             onPressed: () => setState(() => favoritesOnly = !favoritesOnly),
             icon: Icon(
               favoritesOnly ? Icons.star_rounded : Icons.star_border_rounded,
@@ -1039,7 +1541,7 @@ class _NotesPageState extends State<NotesPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openEditor(),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Yaadannoo haaraa'),
+        label: Text(tr(widget.appLanguage, 'new_note')),
       ),
       body: Column(
         children: [
@@ -1059,8 +1561,11 @@ class _NotesPageState extends State<NotesPage> {
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.auto_awesome_rounded,
-                      color: Colors.white, size: 28),
+                  Icon(
+                    Icons.auto_awesome_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
                   SizedBox(height: 12),
                   Text(
                     'Yaada kee kuusi.',
@@ -1084,7 +1589,7 @@ class _NotesPageState extends State<NotesPage> {
             child: TextField(
               onChanged: (value) => setState(() => query = value),
               decoration: InputDecoration(
-                hintText: 'Yaadannoo barbaadi...',
+                hintText: tr(widget.appLanguage, 'note_search_hint'),
                 prefixIcon: const Icon(Icons.search_rounded),
                 filled: true,
                 fillColor: Colors.white,
@@ -1110,7 +1615,11 @@ class _NotesPageState extends State<NotesPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: ChoiceChip(
-                      label: Text(item == 'All' ? 'Hunda' : item),
+                      label: Text(
+                        item == 'All'
+                            ? tr(widget.appLanguage, 'all')
+                            : noteCategoryTitle(widget.appLanguage, item),
+                      ),
                       selected: category == item,
                       onSelected: (_) => setState(() => category = item),
                     ),
@@ -1140,17 +1649,22 @@ class _NotesPageState extends State<NotesPage> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.sticky_note_2_outlined,
-                              size: 64, color: Colors.green.shade300),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Yaadannoo hin jiru',
+                          Icon(
+                            Icons.sticky_note_2_outlined,
+                            size: 64,
+                            color: Colors.green.shade300,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            tr(widget.appLanguage, 'no_notes'),
                             style: TextStyle(
-                                fontSize: 19, fontWeight: FontWeight.w700),
+                              fontSize: 19,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                           const SizedBox(height: 6),
-                          const Text(
-                            'Mallattoo + tuqiitii yaadannoo kee jalqabi.',
+                          Text(
+                            tr(widget.appLanguage, 'start_first_note'),
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -1168,7 +1682,7 @@ class _NotesPageState extends State<NotesPage> {
                     final isPrivate = (note['is_private'] as int) == 1;
                     final isFavorite = (note['is_favorite'] as int) == 1;
                     final title = note['title'] as String;
-                    final content = note['content'] as String;
+                    final content = notePlainText(note['content'] as String? ?? '');
                     final updated = DateTime.fromMillisecondsSinceEpoch(
                       note['updated_at'] as int,
                     );
@@ -1217,14 +1731,12 @@ class _NotesPageState extends State<NotesPage> {
                                       overflow: TextOverflow.ellipsis,
                                       style: theme.textTheme.titleMedium
                                           ?.copyWith(
-                                        fontWeight: FontWeight.w800,
-                                      ),
+                                            fontWeight: FontWeight.w800,
+                                          ),
                                     ),
                                     const SizedBox(height: 5),
                                     Text(
-                                      isPrivate
-                                          ? '?? Yaadannoo iccitii'
-                                          : content,
+                                      isPrivate ? '🔒 ' : content,
                                       maxLines: 3,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
@@ -1249,10 +1761,9 @@ class _NotesPageState extends State<NotesPage> {
                               PopupMenuButton<String>(
                                 onSelected: (value) async {
                                   if (value == 'favorite') {
-                                    await Db.updateNote(
-                                      note['id'] as int,
-                                      {'is_favorite': isFavorite ? 0 : 1},
-                                    );
+                                    await Db.updateNote(note['id'] as int, {
+                                      'is_favorite': isFavorite ? 0 : 1,
+                                    });
                                     if (mounted) setState(() {});
                                   } else if (value == 'edit') {
                                     await _openEditor(note);
@@ -1263,17 +1774,29 @@ class _NotesPageState extends State<NotesPage> {
                                 itemBuilder: (_) => [
                                   PopupMenuItem(
                                     value: 'favorite',
-                                    child: Text(isFavorite
-                                        ? 'Jaallatamoo keessaa baasi'
-                                        : 'Jaallatamoo keessatti dabali'),
+                                    child: Text(
+                                      isFavorite
+                                          ? tr(
+                                              widget.appLanguage,
+                                              'favorite_remove',
+                                            )
+                                          : tr(
+                                              widget.appLanguage,
+                                              'favorite_add',
+                                            ),
+                                    ),
                                   ),
-                                  const PopupMenuItem(
+                                  PopupMenuItem(
                                     value: 'edit',
-                                    child: Text('Gulaali'),
+                                    child: Text(
+                                      tr(widget.appLanguage, 'edit'),
+                                    ),
                                   ),
-                                  const PopupMenuItem(
+                                  PopupMenuItem(
                                     value: 'delete',
-                                    child: Text('Haqi'),
+                                    child: Text(
+                                      tr(widget.appLanguage, 'delete'),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -1293,37 +1816,11 @@ class _NotesPageState extends State<NotesPage> {
   }
 }
 
-class _NotebookLinesPainter extends CustomPainter {
-  const _NotebookLinesPainter({required this.lineHeight});
-
-  final double lineHeight;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFE6E2D6)
-      ..strokeWidth = 1;
-
-    final firstLine = 12 + lineHeight * 0.95;
-
-    for (double y = firstLine; y < size.height - 8; y += lineHeight) {
-      canvas.drawLine(
-        Offset(14, y),
-        Offset(size.width - 14, y),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _NotebookLinesPainter oldDelegate) {
-    return oldDelegate.lineHeight != lineHeight;
-  }
-}
 class NoteEditor extends StatefulWidget {
-  const NoteEditor({super.key, this.note});
+  const NoteEditor({super.key, this.note, required this.appLanguage});
 
   final Map<String, Object?>? note;
+  final AppLanguage appLanguage;
 
   @override
   State<NoteEditor> createState() => _NoteEditorState();
@@ -1331,7 +1828,7 @@ class NoteEditor extends StatefulWidget {
 
 class _NoteEditorState extends State<NoteEditor> {
   late final TextEditingController titleController;
-  late final TextEditingController contentController;
+  late final QuillController contentController;
   late final TextEditingController customCategoryController;
   late String category;
   late String icon;
@@ -1347,8 +1844,35 @@ class _NoteEditorState extends State<NoteEditor> {
     titleController = TextEditingController(
       text: note?['title'] as String? ?? '',
     );
-    contentController = TextEditingController(
-      text: note?['content'] as String? ?? '',
+    final savedContent = note?['content'] as String? ?? '';
+    Document noteDocument;
+
+    try {
+      final decoded = jsonDecode(savedContent);
+      if (decoded is List &&
+          decoded.isNotEmpty &&
+          decoded.every(
+            (item) => item is Map && item.containsKey('insert'),
+          )) {
+        noteDocument = Document.fromJson(decoded);
+      } else {
+        noteDocument = Document.fromJson([
+          {'insert': savedContent.endsWith('\n')
+              ? savedContent
+              : '$savedContent\n'}
+        ]);
+      }
+    } catch (_) {
+      noteDocument = Document.fromJson([
+        {'insert': savedContent.endsWith('\n')
+            ? savedContent
+            : '$savedContent\n'}
+      ]);
+    }
+
+    contentController = QuillController(
+      document: noteDocument,
+      selection: const TextSelection.collapsed(offset: 0),
     );
     customCategoryController = TextEditingController();
     category = _noteCategories.contains(note?['category'])
@@ -1373,14 +1897,14 @@ class _NoteEditorState extends State<NoteEditor> {
     final title = titleController.text.trim();
     if (title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Mata-duree galchi.')),
+        SnackBar(content: Text(tr(widget.appLanguage, 'enter_note_title'))),
       );
       return;
     }
     final customCategory = customCategoryController.text.trim();
     Navigator.pop<Map<String, Object?>>(context, {
       'title': title,
-      'content': contentController.text.trim(),
+      'content': jsonEncode(contentController.document.toDelta().toJson()),
       'category': customCategory.isEmpty ? category : customCategory,
       'color': color,
       'icon': icon,
@@ -1423,18 +1947,21 @@ class _NoteEditorState extends State<NoteEditor> {
               ),
               const SizedBox(height: 18),
               Text(
-                widget.note == null ? 'Yaadannoo haaraa' : 'Yaadannoo gulaali',
+                tr(
+                  widget.appLanguage,
+                  widget.note == null ? 'new_note' : 'edit_note',
+                ),
                 style: const TextStyle(
                   fontSize: 23,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
               TextField(
                 controller: titleController,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
-                  labelText: 'Mata-duree',
+                  labelText: tr(widget.appLanguage, 'title'),
                   prefixIcon: const Icon(Icons.title_rounded),
                   filled: true,
                   fillColor: Colors.white,
@@ -1443,9 +1970,9 @@ class _NoteEditorState extends State<NoteEditor> {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
-              const Text(
-                'Barreeffama kee',
+              const SizedBox(height: 8),
+              Text(
+                tr(widget.appLanguage, 'content'),
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
@@ -1466,35 +1993,39 @@ class _NoteEditorState extends State<NoteEditor> {
                     ),
                   ],
                 ),
-                child: CustomPaint(
-                  painter: _NotebookLinesPainter(
-                    lineHeight: fontSize * 1.7,
-                  ),
-                  child: TextField(
-                    controller: contentController,
-                    minLines: 9,
-                    maxLines: 14,
-                    keyboardType: TextInputType.multiline,
-                    textCapitalization: TextCapitalization.sentences,
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      height: 1.7,
-                      color: const Color(0xFF29352F),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    QuillSimpleToolbar(
+                      controller: contentController,
+                      config: const QuillSimpleToolbarConfig(
+                        multiRowsDisplay: true,
+                        showAlignmentButtons: true,
+                        showFontSize: true,
+                        showColorButton: true,
+                        showBackgroundColorButton: true,
+                      ),
                     ),
-                    cursorColor: const Color(0xFF176B48),
-                    decoration: const InputDecoration(
-                      hintText: 'Yaada kee asitti barreessi...',
-                      hintStyle: TextStyle(color: Color(0xFF9A9A8F)),
-                      contentPadding: EdgeInsets.fromLTRB(16, 12, 16, 12),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
+                    const Divider(height: 1),
+                    SizedBox(
+                      height: 280,
+                      child: QuillEditor.basic(
+                        controller: contentController,
+                        config: QuillEditorConfig(
+                          scrollable: true,
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                          placeholder: tr(widget.appLanguage, 'write_here'),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
               const SizedBox(height: 15),
-              const Text('Ramaddii', style: TextStyle(fontWeight: FontWeight.w700)),
+              Text(
+                tr(widget.appLanguage, 'category'),
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 initialValue: category,
@@ -1506,7 +2037,10 @@ class _NoteEditorState extends State<NoteEditor> {
                 ),
                 items: [
                   for (final item in _noteCategories)
-                    DropdownMenuItem(value: item, child: Text(item)),
+                    DropdownMenuItem(
+                      value: item,
+                      child: Text(noteCategoryTitle(widget.appLanguage, item)),
+                    ),
                 ],
                 onChanged: (value) {
                   if (value != null) setState(() => category = value);
@@ -1515,9 +2049,9 @@ class _NoteEditorState extends State<NoteEditor> {
               const SizedBox(height: 10),
               TextField(
                 controller: customCategoryController,
-                decoration: const InputDecoration(
-                  labelText: 'Ramaddii mataa keetii (filannoo)',
-                  hintText: 'Fakkeenya: Karoora 2027',
+                decoration: InputDecoration(
+                  labelText: tr(widget.appLanguage, 'custom_category'),
+                  hintText: tr(widget.appLanguage, 'custom_category_hint'),
                   prefixIcon: Icon(Icons.create_new_folder_outlined),
                   filled: true,
                   fillColor: Colors.white,
@@ -1525,7 +2059,10 @@ class _NoteEditorState extends State<NoteEditor> {
                 ),
               ),
               const SizedBox(height: 15),
-              const Text('Mallattoo', style: TextStyle(fontWeight: FontWeight.w700)),
+              Text(
+                tr(widget.appLanguage, 'icon'),
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -1556,8 +2093,11 @@ class _NoteEditorState extends State<NoteEditor> {
                     ),
                 ],
               ),
-              const SizedBox(height: 16),
-              const Text('Halluu', style: TextStyle(fontWeight: FontWeight.w700)),
+              const SizedBox(height: 10),
+              Text(
+                tr(widget.appLanguage, 'color'),
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 10,
@@ -1586,12 +2126,12 @@ class _NoteEditorState extends State<NoteEditor> {
                     ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   const Icon(Icons.format_size_rounded),
                   const SizedBox(width: 8),
-                  const Text('Hammamtaa barruu'),
+                  Text(tr(widget.appLanguage, 'font_size')),
                   Expanded(
                     child: Slider(
                       min: 14,
@@ -1610,7 +2150,7 @@ class _NoteEditorState extends State<NoteEditor> {
                 value: favorite,
                 onChanged: (value) => setState(() => favorite = value),
                 secondary: const Icon(Icons.star_rounded, color: Colors.amber),
-                title: const Text('Jaallatamoo'),
+                title: Text(tr(widget.appLanguage, 'favorite')),
               ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
@@ -1618,24 +2158,26 @@ class _NoteEditorState extends State<NoteEditor> {
                 onChanged: (value) async {
                   if (!value && isPrivate) {
                     if (!mounted) return;
-    final confirmed = await showDialog<bool>(
+                    final confirmed = await showDialog<bool>(
                       context: context,
                       builder: (dialogContext) => AlertDialog(
-                        title: const Text('Akeekkachiisa nageenyaa'),
-                        content: const Text(
-                          'Yaadannoo iccitii gara idileetti jijjiiruun '
-                          'qabiyyee isaa barruu ifa taâ€™een kuusa. '
-                          'Namoonni bilbila kee argatan dubbisuu dandaâ€™u. '
-                          'Jijjiiruu barbaaddaa?',
+                        title: Text(
+                          tr(widget.appLanguage, 'security_warning_title'),
+                        ),
+                        content: Text(
+                          tr(widget.appLanguage, 'security_warning_message'),
                         ),
                         actions: [
                           TextButton(
-                            onPressed: () => Navigator.pop(dialogContext, false),
-                            child: const Text('Dhiisi'),
+                            onPressed: () =>
+                                Navigator.pop(dialogContext, false),
+                            child: Text(tr(widget.appLanguage, 'cancel')),
                           ),
                           FilledButton(
                             onPressed: () => Navigator.pop(dialogContext, true),
-                            child: const Text('Eeyyee, jijjiiri'),
+                            child: Text(
+                              tr(widget.appLanguage, 'confirm_change'),
+                            ),
                           ),
                         ],
                       ),
@@ -1645,10 +2187,8 @@ class _NoteEditorState extends State<NoteEditor> {
                   setState(() => isPrivate = value);
                 },
                 secondary: const Icon(Icons.lock_outline_rounded),
-                title: const Text('Yaadannoo iccitii'),
-                subtitle: const Text(
-                  'PIN fi AES-GCM encryption fayyadamuun kuufama.',
-                ),
+                title: Text(tr(widget.appLanguage, 'private_note')),
+                subtitle: Text(tr(widget.appLanguage, 'private_note_subtitle')),
               ),
               const SizedBox(height: 10),
               SizedBox(
@@ -1656,9 +2196,9 @@ class _NoteEditorState extends State<NoteEditor> {
                 child: FilledButton.icon(
                   onPressed: _save,
                   icon: const Icon(Icons.check_rounded),
-                  label: const Padding(
+                  label: Padding(
                     padding: EdgeInsets.symmetric(vertical: 13),
-                    child: Text('Kuusi'),
+                    child: Text(tr(widget.appLanguage, 'save')),
                   ),
                 ),
               ),
@@ -1669,6 +2209,218 @@ class _NoteEditorState extends State<NoteEditor> {
     );
   }
 }
+
+class SettingsPage extends StatefulWidget {
+  final bool isDark;
+  final double fontScale;
+  final AppLanguage appLanguage;
+  final ValueChanged<bool> onDarkChanged;
+  final ValueChanged<double> onFontScaleChanged;
+  final ValueChanged<AppLanguage> onAppLanguageChanged;
+
+  const SettingsPage({
+    super.key,
+    required this.isDark,
+    required this.fontScale,
+    required this.appLanguage,
+    required this.onDarkChanged,
+    required this.onFontScaleChanged,
+    required this.onAppLanguageChanged,
+  });
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  Future<void> _clearHistory() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(tr(widget.appLanguage, 'settings_clear_history_title')),
+        content: const Text(
+          'This will permanently delete all translation history. '
+          'Your phrasebook and notes will not be affected.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(tr(widget.appLanguage, 'cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(tr(widget.appLanguage, 'clear_history')),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    await Db.clearHistory();
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(tr(widget.appLanguage, 'clear_history_done'))),
+    );
+  }
+
+  void _showAbout() {
+    showAboutDialog(
+      context: context,
+      applicationName: 'Hiikaa',
+      applicationVersion: '0.1',
+      applicationIcon: const Icon(
+        Icons.translate_rounded,
+        size: 42,
+        color: Color(0xFF246B45),
+      ),
+      children: const [
+        Text(
+          'Hiikaa is a language translation and phrasebook app '
+          'designed to help people communicate.',
+        ),
+        SizedBox(height: 10),
+        Text('Created by Lamesa Bekele'),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final currentSize = widget.fontScale == 0.9
+        ? tr(widget.appLanguage, 'small')
+        : widget.fontScale == 1.1
+        ? tr(widget.appLanguage, 'large')
+        : tr(widget.appLanguage, 'medium');
+
+    return Scaffold(
+      appBar: AppBar(title: Text(tr(widget.appLanguage, 'settings'))),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            tr(widget.appLanguage, 'appearance'),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.language_rounded),
+                  title: Text(tr(widget.appLanguage, 'app_language')),
+                  subtitle: Text(appLanguageLabel[widget.appLanguage]!),
+                  trailing: DropdownButton<AppLanguage>(
+                    value: widget.appLanguage,
+                    items: AppLanguage.values.map((language) {
+                      return DropdownMenuItem<AppLanguage>(
+                        value: language,
+                        child: Text(appLanguageLabel[language]!),
+                      );
+                    }).toList(),
+                    onChanged: (language) {
+                      if (language != null) {
+                        widget.onAppLanguageChanged(language);
+                      }
+                    },
+                  ),
+                ),
+                const Divider(height: 1),
+                SwitchListTile(
+                  secondary: Icon(
+                    widget.isDark
+                        ? Icons.dark_mode_outlined
+                        : Icons.light_mode_outlined,
+                  ),
+                  title: Text(tr(widget.appLanguage, 'dark_theme')),
+                  subtitle: Text(tr(widget.appLanguage, 'use_dark_appearance')),
+                  value: widget.isDark,
+                  onChanged: widget.onDarkChanged,
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.format_size_rounded),
+                  title: Text(tr(widget.appLanguage, 'text_size')),
+                  subtitle: Text('Current size: $currentSize'),
+                  trailing: DropdownButton<double>(
+                    value: widget.fontScale,
+                    items: [
+                      DropdownMenuItem(
+                        value: 0.9,
+                        child: Text(tr(widget.appLanguage, 'small')),
+                      ),
+                      DropdownMenuItem(
+                        value: 1.0,
+                        child: Text(tr(widget.appLanguage, 'medium')),
+                      ),
+                      DropdownMenuItem(
+                        value: 1.1,
+                        child: Text(tr(widget.appLanguage, 'large')),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        widget.onFontScaleChanged(value);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            tr(widget.appLanguage, 'data'),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.delete_outline_rounded),
+              title: Text(tr(widget.appLanguage, 'clear_history')),
+              subtitle: Text(tr(widget.appLanguage, 'clear_history_only')),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: _clearHistory,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            tr(widget.appLanguage, 'about'),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.info_outline_rounded),
+              title: Text(tr(widget.appLanguage, 'about_hiikaa')),
+              subtitle: Text(tr(widget.appLanguage, 'about_app_info')),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: _showAbout,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Center(
+            child: Text(
+              'Hiikaa • Version 0.1',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 
 

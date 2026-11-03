@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'phrases.dart';
+import 'app_localizations.dart';
 
 class PhraseEntry {
   const PhraseEntry(this.category, this.en, this.om, this.am);
@@ -163,7 +165,8 @@ class SavedPhrases {
 }
 
 class CategoryPhrasebookPage extends StatefulWidget {
-  const CategoryPhrasebookPage({super.key});
+  final AppLanguage appLanguage;
+  const CategoryPhrasebookPage({super.key, required this.appLanguage});
   @override
   State<CategoryPhrasebookPage> createState() => _CategoryPhrasebookPageState();
 }
@@ -192,7 +195,7 @@ class _CategoryPhrasebookPageState extends State<CategoryPhrasebookPage> {
       context,
       MaterialPageRoute(
         builder: (_) =>
-            PhraseListPage(title: g.title, entries: entriesForGroup(g.id)),
+            PhraseListPage(title: g.title, entries: entriesForGroup(g.id), appLanguage: widget.appLanguage),
       ),
     );
   }
@@ -209,19 +212,19 @@ class _CategoryPhrasebookPageState extends State<CategoryPhrasebookPage> {
         ValueListenableBuilder<Set<String>>(
           valueListenable: SavedPhrases.items,
           builder: (context, saved, _) => _GroupCard(
-            title: 'Saved',
-            subtitle: '${saved.length} saved',
+            title: tr(widget.appLanguage, 'saved'),
+            subtitle: '${saved.length} ${widget.appLanguage == AppLanguage.om ? 'kuufame' : widget.appLanguage == AppLanguage.am ? '?????' : 'saved'}',
             icon: Icons.star,
             color: const Color(0xFFF9A825),
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const SavedPage()),
+              MaterialPageRoute(builder: (_) => SavedPage(appLanguage: widget.appLanguage)),
             ),
           ),
         ),
         for (final g in visible)
           _GroupCard(
-            title: g.title,
+            title: phraseGroupTitle(widget.appLanguage, g.title),
             subtitle: '',
             icon: g.icon,
             color: g.color,
@@ -235,27 +238,44 @@ class _CategoryPhrasebookPageState extends State<CategoryPhrasebookPage> {
   Widget build(BuildContext context) {
     final searching = _q.trim().length >= 2;
     return Scaffold(
-      appBar: AppBar(title: const Text('Phrasebook')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-            child: TextField(
-              controller: _search,
-              onChanged: (v) => setState(() => _q = v),
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
-                hintText: 'Search all phrases',
+      appBar: AppBar(title: Text(tr(widget.appLanguage, 'phrasebook'))),
+      body: Container(
+        color: const Color(0xFFF4F8F5),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+              child: TextField(
+                controller: _search,
+                onChanged: (v) => setState(() => _q = v),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search, color: Color(0xFF246B45)),
+                  hintText: tr(widget.appLanguage, 'search_phrases'),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Color(0xFFE1EBE3)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Color(0xFFE1EBE3)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Color(0xFF246B45), width: 1.6),
+                  ),
+                ),
               ),
             ),
-          ),
           Expanded(
             child: searching
                 ? PhraseListView(entries: _filter(allPhraseEntries, _q))
                 : _grid(),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -278,7 +298,9 @@ class _GroupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: color.withValues(alpha: 0.14),
+      color: Colors.white,
+      elevation: 2,
+      shadowColor: color.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -313,9 +335,10 @@ class _GroupCard extends StatelessWidget {
 }
 
 class PhraseListPage extends StatefulWidget {
-  const PhraseListPage({super.key, required this.title, required this.entries});
+  const PhraseListPage({super.key, required this.title, required this.entries, required this.appLanguage});
   final String title;
   final List<PhraseEntry> entries;
+  final AppLanguage appLanguage;
   @override
   State<PhraseListPage> createState() => _PhraseListPageState();
 }
@@ -340,6 +363,22 @@ class _PhraseListPageState extends State<PhraseListPage> {
         label: Text(label),
         selected: selected,
         onSelected: (_) => onTap(),
+        selectedColor: const Color(0xFFDDEFE3),
+        backgroundColor: Colors.white,
+        side: BorderSide(
+          color: selected
+              ? const Color(0xFF246B45)
+              : const Color(0xFFE1EBE3),
+        ),
+        labelStyle: TextStyle(
+          color: selected
+              ? const Color(0xFF246B45)
+              : const Color(0xFF52645A),
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(13),
+        ),
       ),
     );
   }
@@ -356,19 +395,35 @@ class _PhraseListPageState extends State<PhraseListPage> {
     shown = _filter(shown, _q);
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-            child: TextField(
-              onChanged: (v) => setState(() => _q = v),
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
-                border: const OutlineInputBorder(),
-                hintText: 'Search in ${widget.title}',
+      body: Container(
+        color: const Color(0xFFF4F8F5),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+              child: TextField(
+                onChanged: (v) => setState(() => _q = v),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search, color: Color(0xFF246B45)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Color(0xFFE1EBE3)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Color(0xFFE1EBE3)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Color(0xFF246B45), width: 1.6),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  hintText: '${tr(widget.appLanguage, 'search')} ${widget.title}',
+                ),
               ),
             ),
-          ),
           if (_subs.length > 1)
             SizedBox(
               height: 46,
@@ -376,86 +431,194 @@ class _PhraseListPageState extends State<PhraseListPage> {
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 children: [
-                  _chip('All', _sub.isEmpty, () => setState(() => _sub = '')),
+                  _chip(tr(widget.appLanguage, 'all'), _sub.isEmpty, () => setState(() => _sub = '')),
                   for (final c in _subs)
                     _chip(c, _sub == c, () => setState(() => _sub = c)),
                 ],
               ),
             ),
-          Expanded(child: PhraseListView(entries: shown)),
-        ],
-      ),
-    );
-  }
-}
-
-class SavedPage extends StatelessWidget {
-  const SavedPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Saved')),
-      body: ValueListenableBuilder<Set<String>>(
-        valueListenable: SavedPhrases.items,
-        builder: (context, saved, _) => PhraseListView(
-          entries: [
-            for (final e in allPhraseEntries)
-              if (saved.contains(e.en)) e,
+          Expanded(child: PhraseListView(entries: shown, appLanguage: widget.appLanguage)),
           ],
-          emptyText: 'Tap the star on any phrase to save it here',
         ),
       ),
     );
   }
 }
 
-class PhraseListView extends StatelessWidget {
-  const PhraseListView({
-    super.key,
-    required this.entries,
-    this.emptyText = 'No phrases found',
-  });
-  final List<PhraseEntry> entries;
-  final String emptyText;
+class SavedPage extends StatelessWidget {
+  final AppLanguage appLanguage;
+  const SavedPage({super.key, required this.appLanguage});
 
   @override
   Widget build(BuildContext context) {
-    if (entries.isEmpty) return Center(child: Text(emptyText));
-    return ValueListenableBuilder<Set<String>>(
-      valueListenable: SavedPhrases.items,
-      builder: (context, saved, _) => ListView.separated(
-        itemCount: entries.length,
-        separatorBuilder: (_, _) => const Divider(height: 1),
-        itemBuilder: (context, i) {
-          final e = entries[i];
-          final isSaved = saved.contains(e.en);
-          return ListTile(
-            title: Text(e.en, style: const TextStyle(fontWeight: FontWeight.w600)),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(e.om),
-                Text(e.am),
-                const SizedBox(height: 2),
-              ],
-            ),
-            trailing: IconButton(
-              icon: Icon(isSaved ? Icons.star : Icons.star_border),
-              onPressed: () => SavedPhrases.toggle(e.en),
-            ),
-            onTap: () {
-              Clipboard.setData(
-                  ClipboardData(text: '${e.en}\n${e.om}\n${e.am}'));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Copied'), duration: Duration(seconds: 1)),
-              );
-            },
-          );
-        },
+    return Scaffold(
+      appBar: AppBar(title: Text(tr(appLanguage, 'saved'))),
+      body: Container(
+        color: const Color(0xFFF4F8F5),
+        child: ValueListenableBuilder<Set<String>>(
+          valueListenable: SavedPhrases.items,
+          builder: (context, saved, _) => PhraseListView(
+            entries: [
+              for (final e in allPhraseEntries)
+                if (saved.contains(e.en)) e,
+            ],
+            emptyText: appLanguage == AppLanguage.om ? 'Jechoota asitti kuusuuf urjii tuqi' : appLanguage == AppLanguage.am ? '???? ??? ?????? ???? ???' : 'Tap the star on any phrase to save it here',
+            appLanguage: appLanguage,
+          ),
+        ),
       ),
     );
   }
 }
+class PhraseListView extends StatefulWidget {
+  const PhraseListView({
+    super.key,
+    required this.entries,
+    this.emptyText = 'No phrases found',
+    this.appLanguage = AppLanguage.en,
+  });
+
+  final List<PhraseEntry> entries;
+  final String emptyText;
+  final AppLanguage appLanguage;
+
+  @override
+  State<PhraseListView> createState() => _PhraseListViewState();
+}
+
+class _PhraseListViewState extends State<PhraseListView> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.entries.isEmpty) {
+      return Center(child: Text(widget.emptyText));
+    }
+
+    return ValueListenableBuilder<Set<String>>(
+      valueListenable: SavedPhrases.items,
+      builder: (context, saved, _) => Scrollbar(
+        controller: _scrollController,
+        thumbVisibility: true,
+        thickness: 6,
+        radius: const Radius.circular(10),
+        interactive: true,
+        child: ListView.separated(
+          controller: _scrollController,
+          itemCount: widget.entries.length,
+          padding: const EdgeInsets.fromLTRB(14, 8, 14, 20),
+          separatorBuilder: (_, _) => const SizedBox(height: 9),
+          itemBuilder: (context, i) {
+            final e = widget.entries[i];
+            final isSaved = saved.contains(e.en);
+
+            return Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(17),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(17),
+                  border: Border.all(color: const Color(0xFFE3ECE5)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF244B35).withValues(alpha: 0.035),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.fromLTRB(16, 9, 10, 9),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(17),
+                  ),
+                  title: Text(
+                    e.en,
+                    style: const TextStyle(
+                      color: Color(0xFF1D3528),
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
+                  ),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.translate, size: 16, color: Color(0xFF246B45)),
+                            const SizedBox(width: 7),
+                            Expanded(
+                              child: Text(
+                                e.om,
+                                style: const TextStyle(
+                                  color: Color(0xFF246B45),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 7),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.language, size: 16, color: Color(0xFF8A6A32)),
+                            const SizedBox(width: 7),
+                            Expanded(
+                              child: Text(
+                                e.am,
+                                style: const TextStyle(
+                                  color: Color(0xFF59645D),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  trailing: IconButton(
+                    tooltip: isSaved
+                        ? (widget.appLanguage == AppLanguage.om ? 'Kuusaa keessaa haqi' : widget.appLanguage == AppLanguage.am ? '?????? ?????' : 'Remove from saved')
+                        : (widget.appLanguage == AppLanguage.om ? 'Jechoota kuusi' : widget.appLanguage == AppLanguage.am ? '???? ?????' : 'Save phrase'),
+                    icon: Icon(
+                      isSaved ? Icons.star_rounded : Icons.star_outline_rounded,
+                      color: isSaved ? const Color(0xFFF2B01E) : const Color(0xFF829087),
+                    ),
+                    onPressed: () => SavedPhrases.toggle(e.en),
+                  ),
+                  onTap: () {
+                    Clipboard.setData(
+                      ClipboardData(text: '${e.en}\n${e.om}\n${e.am}'),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(tr(widget.appLanguage, 'copied')),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
 
 

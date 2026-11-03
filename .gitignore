@@ -71,3 +71,6 @@ hiikaa_phone.db
 batch*_review.csv
 phrasebook_*.txt
 quality_report.csv
+diag_notebook.txt
+hardcoded_strings.txt
+backups/
