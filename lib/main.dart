@@ -2290,23 +2290,11 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _showAbout() {
-    showAboutDialog(
-      context: context,
-      applicationName: 'Hiikaa',
-      applicationVersion: '0.1',
-      applicationIcon: const Icon(
-        Icons.translate_rounded,
-        size: 42,
-        color: Color(0xFF246B45),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AboutDeveloperPage(appLanguage: widget.appLanguage),
       ),
-      children: const [
-        Text(
-          'Hiikaa is a language translation and phrasebook app '
-          'designed to help people communicate.',
-        ),
-        SizedBox(height: 10),
-        Text('Created by Lamesa Bekele'),
-      ],
     );
   }
 
@@ -2429,10 +2417,6 @@ class _SettingsPageState extends State<SettingsPage> {
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: _showAbout,
             ),
-          ),
-          const SizedBox(height: 10),
-          Card(
-            child: AboutDeveloperTile(appLanguage: widget.appLanguage),
           ),
           const SizedBox(height: 24),
           Center(

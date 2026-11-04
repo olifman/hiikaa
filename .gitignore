@@ -74,3 +74,10 @@ quality_report.csv
 diag_notebook.txt
 hardcoded_strings.txt
 backups/
+batch10_review.csv
+batch10_review.csv
+
+*.csv
+*backup*
+batch8_dart_preview.txt
+phrases_source.txt

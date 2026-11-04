@@ -2,236 +2,245 @@ import 'package:flutter/material.dart';
 
 import 'app_localizations.dart';
 
-// ---- Jijjiiruu dandeessa (duwwaa yoo ta'e app keessatti hin mul'atu) ----
 const String devName = 'Lamesa Bekele';
-const String devUniversity = '';
-const String devEmail = '';
-const String devPhone = '';
 const String appVersionText = '0.3 (beta)';
-// -------------------------------------------------------------------------
 
 const Map<String, Map<AppLanguage, String>> _about = {
-  'about_title': {
-    AppLanguage.en: 'About the developer',
-    AppLanguage.om: 'Waa’ee kan hojjete',
-    AppLanguage.am: 'ስለ ገንቢው',
+  'title': {
+    AppLanguage.en: 'About Hiikaa',
+    AppLanguage.om: 'Waa’ee Hiikaa',
+    AppLanguage.am: 'ስለ Hiikaa',
   },
-  'about_tile_sub': {
-    AppLanguage.en: 'Developer and app information',
-    AppLanguage.om: 'Odeeffannoo kan hojjete fi appii',
-    AppLanguage.am: 'የገንቢውና የመተግበሪያው መረጃ',
+  'tagline': {
+    AppLanguage.en: 'Connecting languages, bringing people closer.',
+    AppLanguage.om: 'Afaanota walitti fiduun namoota walitti dhiyeessuu.',
+    AppLanguage.am: 'ቋንቋዎችን በማገናኘት ሰዎችን ማቀራረብ።',
   },
-  'developed_by': {
-    AppLanguage.en: 'Developed by',
-    AppLanguage.om: 'Kan hojjete',
-    AppLanguage.am: 'የተሠራው በ',
+  'purpose_title': {
+    AppLanguage.en: 'About the app',
+    AppLanguage.om: 'Waa’ee appichaa',
+    AppLanguage.am: 'ስለ መተግበሪያው',
+  },
+  'purpose': {
+    AppLanguage.en: 'Hiikaa is an offline translator designed to help people translate between English, Afaan Oromoo and Amharic without an internet connection.',
+    AppLanguage.om: 'Hiikaan appii interneetii malee afaan Ingiliffaa, Afaan Oromoo fi Afaan Amaaraa gidduutti hiikuuf qophaa’eedha.',
+    AppLanguage.am:
+        'Hiikaa ያለ ኢንተርኔት በእንግሊዝኛ፣ በኦሮምኛ እና በአማርኛ መካከል ለመተርጎም የተዘጋጀ መተግበሪያ ነው።',
+  },
+  'developer_title': {
+    AppLanguage.en: 'Developer',
+    AppLanguage.om: 'Nama appicha hojjetee',
+    AppLanguage.am: 'ገንቢ',
   },
   'role': {
     AppLanguage.en: 'Software Engineering student',
     AppLanguage.om: 'Barataa Software Engineering',
     AppLanguage.am: 'የሶፍትዌር ምህንድስና ተማሪ',
   },
-  'university': {
-    AppLanguage.en: 'University',
-    AppLanguage.om: 'Yuunivarsiitii',
-    AppLanguage.am: 'ዩኒቨርሲቲ',
+  'version_title': {
+    AppLanguage.en: 'App version',
+    AppLanguage.om: 'Versionii appichaa',
+    AppLanguage.am: 'የመተግበሪያው ስሪት',
   },
-  'contact': {
-    AppLanguage.en: 'Contact',
-    AppLanguage.om: 'Quunnamtii',
-    AppLanguage.am: 'ግንኙነት',
-  },
-  'about_app': {
-    AppLanguage.en: 'About Hiikaa',
-    AppLanguage.om: 'Waa’ee Hiikaa',
-    AppLanguage.am: 'ስለ Hiikaa',
-  },
-  'about_app_text': {
-    AppLanguage.en:
-        'Hiikaa is an offline translator for English, Afaan Oromoo and Amharic. It works without internet, so people in places with little or no connection can use it.',
-    AppLanguage.om:
-        'Hiikaan afaan Ingiliffaa, Afaan Oromoo fi Amaaraa gidduutti interneetii malee hiika. Namoonni interneetii hin qabne illee itti fayyadamuu danda’u.',
-    AppLanguage.am:
-        'Hiikaa በእንግሊዝኛ፣ በኦሮምኛ እና በአማርኛ መካከል ያለ ኢንተርኔት የሚተረጉም መተግበሪያ ነው። ኢንተርኔት በሌለባቸው ቦታዎችም መጠቀም ይቻላል።',
-  },
-  'version': {
-    AppLanguage.en: 'Version',
-    AppLanguage.om: 'Version',
-    AppLanguage.am: 'ስሪት',
-  },
-  'data_sources': {
+  'sources_title': {
     AppLanguage.en: 'Data sources',
     AppLanguage.om: 'Madda daataa',
     AppLanguage.am: 'የመረጃ ምንጮች',
   },
-  'data_sources_text': {
-    AppLanguage.en:
-        'Sentences: FLORES-200 (Meta AI), licensed CC BY-SA 4.0. Phrasebook: written for this app.',
-    AppLanguage.om:
-        'Himoota: FLORES-200 (Meta AI), CC BY-SA 4.0. Kuusaa jechootaa: appii kanaaf barreeffame.',
-    AppLanguage.am:
-        'ዓረፍተ ነገሮች፦ FLORES-200 (Meta AI)፣ CC BY-SA 4.0። የቃላት መዝገብ፦ ለዚህ መተግበሪያ የተጻፈ።',
-  },
-  'draft_note': {
-    AppLanguage.en:
-        'Many phrases are still drafts and are being reviewed by native speakers. Please do not rely on them for medical or legal decisions.',
-    AppLanguage.om:
-        'Jechoonni fi himoonni baay’een ammaaf Draft dha; dubbattoota afaanii irraa mirkaneeffamaa jira. Murtee fayyaa yookiin seeraaf itti hin hirkatin.',
-    AppLanguage.am:
-        'ብዙዎቹ ሐረጎች ገና ረቂቅ ናቸው፤ በቋንቋ ባለሙያዎች እየተረጋገጡ ነው። ለሕክምና ወይም ለሕግ ውሳኔ አትመኩባቸው።',
-  },
-  'thanks': {
-    AppLanguage.en: 'Thank you for using Hiikaa.',
-    AppLanguage.om: 'Hiikaa fayyadamuu keef galatoomi.',
-    AppLanguage.am: 'Hiikaa ስለተጠቀሙ እናመሰግናለን።',
+  'sources': {
+    AppLanguage.en: 'FLORES-200 by Meta AI, licensed under CC BY-SA 4.0, and the phrasebook prepared for this app.',
+    AppLanguage.om: 'FLORES-200 kan Meta AI, hayyama CC BY-SA 4.0 jalatti; akkasumas kuusaa jechootaa appii kanaaf qophaa’e.',
+    AppLanguage.am: 'በCC BY-SA 4.0 ፈቃድ የተለቀቀው FLORES-200 በMeta AI እና ለዚህ መተግበሪያ የተዘጋጀው የቃላት ስብስብ።',
   },
 };
 
-String _t(AppLanguage lang, String key) =>
-    _about[key]?[lang] ?? _about[key]?[AppLanguage.en] ?? key;
-
-/// Tile to place inside the Settings list.
-class AboutDeveloperTile extends StatelessWidget {
-  const AboutDeveloperTile({super.key, required this.appLanguage});
-  final AppLanguage appLanguage;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.info_outline),
-      title: Text(_t(appLanguage, 'about_title')),
-      subtitle: Text(_t(appLanguage, 'about_tile_sub')),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => AboutDeveloperPage(appLanguage: appLanguage),
-        ),
-      ),
-    );
-  }
+String _aboutText(AppLanguage language, String key) {
+  return _about[key]?[language] ?? _about[key]?[AppLanguage.en] ?? key;
 }
 
 class AboutDeveloperPage extends StatelessWidget {
   const AboutDeveloperPage({super.key, required this.appLanguage});
+
   final AppLanguage appLanguage;
 
-  String _initials() {
-    final parts = devName.trim().split(RegExp(r'\s+'));
-    final a = parts.isNotEmpty && parts[0].isNotEmpty ? parts[0][0] : '';
-    final b = parts.length > 1 && parts[1].isNotEmpty ? parts[1][0] : '';
-    return (a + b).toUpperCase();
-  }
+  Widget _infoCard({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required Widget content,
+  }) {
+    final colors = Theme.of(context).colorScheme;
 
-  Widget _section(BuildContext context, String title, String body) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 4),
-          Text(body),
-        ],
+    return Card(
+      elevation: 0,
+      color: colors.surfaceContainerLow,
+      margin: const EdgeInsets.only(bottom: 14),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: colors.outlineVariant.withValues(alpha: 0.45)),
       ),
-    );
-  }
-
-  Widget _info(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 18),
-          const SizedBox(width: 8),
-          Expanded(child: SelectableText(text)),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: colors.primary, size: 22),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colors.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            content,
+          ],
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: Text(_t(appLanguage, 'about_title'))),
+      appBar: AppBar(
+        title: Text(_aboutText(appLanguage, 'title')),
+        centerTitle: true,
+      ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
         children: [
-          Center(
-            child: CircleAvatar(
-              radius: 44,
-              backgroundColor: scheme.primaryContainer,
-              child: Text(
-                _initials(),
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w700,
-                  color: scheme.onPrimaryContainer,
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 28),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  colors.primary,
+                  colors.primary.withValues(alpha: 0.78),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 66,
+                  height: 66,
+                  decoration: BoxDecoration(
+                    color: colors.onPrimary.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Icon(
+                    Icons.translate_rounded,
+                    size: 36,
+                    color: colors.onPrimary,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  'Hiikaa',
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: colors.onPrimary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _aboutText(appLanguage, 'tagline'),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colors.onPrimary.withValues(alpha: 0.92),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          _infoCard(
+            context: context,
+            icon: Icons.info_outline_rounded,
+            title: _aboutText(appLanguage, 'purpose_title'),
+            content: Text(
+              _aboutText(appLanguage, 'purpose'),
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.6),
+            ),
+          ),
+
+          _infoCard(
+            context: context,
+            icon: Icons.person_outline_rounded,
+            title: _aboutText(appLanguage, 'developer_title'),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  devName,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  _aboutText(appLanguage, 'role'),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colors.onSurfaceVariant,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          _infoCard(
+            context: context,
+            icon: Icons.verified_outlined,
+            title: _aboutText(appLanguage, 'version_title'),
+            content: Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.primaryContainer,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  appVersionText,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: colors.onPrimaryContainer,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 14),
-          Center(
-            child: Text(
-              _t(appLanguage, 'developed_by'),
-              style: Theme.of(context).textTheme.bodySmall,
+
+          _infoCard(
+            context: context,
+            icon: Icons.menu_book_outlined,
+            title: _aboutText(appLanguage, 'sources_title'),
+            content: Text(
+              _aboutText(appLanguage, 'sources'),
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.6),
             ),
           ),
-          Center(
-            child: Text(
-              devName,
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Center(child: Text(_t(appLanguage, 'role'))),
-          if (devUniversity.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Center(child: Text(devUniversity)),
-            ),
-          const SizedBox(height: 18),
-          if (devEmail.isNotEmpty || devPhone.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _t(appLanguage, 'contact'),
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                  if (devEmail.isNotEmpty) _info(Icons.email_outlined, devEmail),
-                  if (devPhone.isNotEmpty) _info(Icons.phone_outlined, devPhone),
-                ],
-              ),
-            ),
-          const Divider(),
-          const SizedBox(height: 12),
-          _section(context, _t(appLanguage, 'about_app'),
-              _t(appLanguage, 'about_app_text')),
-          _section(context, _t(appLanguage, 'version'), appVersionText),
-          _section(context, _t(appLanguage, 'data_sources'),
-              _t(appLanguage, 'data_sources_text')),
-          _section(context, '', _t(appLanguage, 'draft_note')),
-          const SizedBox(height: 8),
-          Center(child: Text(_t(appLanguage, 'thanks'))),
-          const SizedBox(height: 24),
         ],
       ),
     );
