@@ -111,6 +111,7 @@ class _HiikaaAppState extends State<HiikaaApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Hiikaa',
       theme: _makeTheme(Brightness.light),
       darkTheme: _makeTheme(Brightness.dark),

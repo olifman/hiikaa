@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -74,6 +74,8 @@ const List<PhraseGroup> phraseGroups = [
     'Immigration and passport', 'City and kebele office', 'Tax and revenue',
     'Land and housing office', 'Utilities and post office'
   ]),
+  PhraseGroup('motiv', 'Motivation', Icons.emoji_events_outlined, Color(0xFFF9A825), ['Motivation']),
+  PhraseGroup('quotes', 'Famous quotes', Icons.format_quote, Color(0xFF5E35B1), ['Famous quotes']),
   PhraseGroup('more', 'More', Icons.more_horiz, Color(0xFF757575), []),
 ];
 

@@ -605,6 +605,16 @@ String tr(AppLanguage language, String key) {
 
 String phraseGroupTitle(AppLanguage language, String title) {
   const translations = <String, Map<AppLanguage, String>>{
+    'Motivation': {
+      AppLanguage.en: 'Motivation',
+      AppLanguage.om: "Kaka'umsa",
+      AppLanguage.am: 'መነሳሳት',
+    },
+    'Famous quotes': {
+      AppLanguage.en: 'Famous quotes',
+      AppLanguage.om: 'Jechoota beekamoo',
+      AppLanguage.am: 'ታዋቂ አባባሎች',
+    },
     'Greetings': {
       AppLanguage.en: 'Greetings',
       AppLanguage.om: 'Nagaa gaafachuu',
