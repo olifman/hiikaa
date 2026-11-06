@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'phrases.dart';
 import 'app_localizations.dart';
+import 'technology_page.dart';
 
 class PhraseEntry {
   const PhraseEntry(this.category, this.en, this.om, this.am);
@@ -44,7 +45,9 @@ const List<PhraseGroup> phraseGroups = [
   PhraseGroup('edu', 'Education', Icons.school_outlined, Color(0xFF6A1B9A),
       ['Education', 'School', 'Classroom', 'School life', 'Exams', 'Subjects', 'Grades']),
   PhraseGroup('biz', 'Business & Work', Icons.business_center_outlined, Color(0xFF37474F),
-      ['Work', 'Office', 'Technology']),
+      ['Work', 'Office']),
+  PhraseGroup('tech', 'Technology', Icons.memory, Color(0xFF00897B),
+      ['Technology']),
   PhraseGroup('family', 'Family & People', Icons.family_restroom, Color(0xFFAD1457),
       ['Family', 'People']),
   PhraseGroup('numtime', 'Numbers & Time', Icons.access_time, Color(0xFF0277BD),
@@ -76,6 +79,14 @@ const List<PhraseGroup> phraseGroups = [
   ]),
   PhraseGroup('motiv', 'Motivation', Icons.emoji_events_outlined, Color(0xFFF9A825), ['Motivation']),
   PhraseGroup('quotes', 'Famous quotes', Icons.format_quote, Color(0xFF5E35B1), ['Famous quotes']),
+  PhraseGroup('trans', 'Transportation & Vehicles', Icons.directions_car_outlined, Color(0xFF00838F), ['Transportation & Vehicles']),
+  PhraseGroup('bank', 'Money & Banking', Icons.account_balance_wallet_outlined, Color(0xFF33691E), ['Money & Banking']),
+  PhraseGroup('wx', 'Time, Date & Weather', Icons.wb_cloudy_outlined, Color(0xFF039BE5), ['Time, Date & Weather']),
+  PhraseGroup('safety', 'Emergency & Safety', Icons.warning_amber_outlined, Color(0xFFB71C1C), ['Emergency & Safety']),
+  PhraseGroup('sport', 'Sports & Recreation', Icons.sports_soccer, Color(0xFFE65100), ['Sports & Recreation']),
+  PhraseGroup('dirs', 'Directions & Places', Icons.place_outlined, Color(0xFF6D4C41), ['Directions & Places']),
+  PhraseGroup('meas', 'Numbers & Measurements', Icons.straighten, Color(0xFF5C6BC0), ['Numbers & Measurements']),
+  PhraseGroup('comm', 'Communication & Social Media', Icons.forum_outlined, Color(0xFF7B1FA2), ['Communication & Social Media']),
   PhraseGroup('more', 'More', Icons.more_horiz, Color(0xFF757575), []),
 ];
 
@@ -196,8 +207,27 @@ class _CategoryPhrasebookPageState extends State<CategoryPhrasebookPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            PhraseListPage(title: g.title, entries: entriesForGroup(g.id), appLanguage: widget.appLanguage),
+        builder: (_) => g.id == 'tech'
+            ? TechnologyPage(
+                appLanguage: widget.appLanguage,
+                onVocabularyTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PhraseListPage(
+                        title: 'Technology',
+                        entries: entriesForGroup('tech'),
+                        appLanguage: widget.appLanguage,
+                      ),
+                    ),
+                  );
+                },
+              )
+            : PhraseListPage(
+                title: g.title,
+                entries: entriesForGroup(g.id),
+                appLanguage: widget.appLanguage,
+              ),
       ),
     );
   }

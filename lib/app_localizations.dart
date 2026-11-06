@@ -700,6 +700,51 @@ String phraseGroupTitle(AppLanguage language, String title) {
       AppLanguage.om: 'Mootummaa fi Waajjiraalee',
       AppLanguage.am: 'መንግሥት እና ቢሮዎች',
     },
+    'Transportation & Vehicles': {
+      AppLanguage.en: 'Transportation & Vehicles',
+      AppLanguage.om: 'Geejjibaa fi Konkolaattota',
+      AppLanguage.am: 'ትራንስፖርት እና ተሽከርካሪዎች',
+    },
+    'Money & Banking': {
+      AppLanguage.en: 'Money & Banking',
+      AppLanguage.om: 'Maallaqa fi Baankii',
+      AppLanguage.am: 'ገንዘብ እና ባንክ',
+    },
+    'Time, Date & Weather': {
+      AppLanguage.en: 'Time, Date & Weather',
+      AppLanguage.om: 'Yeroo, Guyyaa fi Haala Qilleensaa',
+      AppLanguage.am: 'ጊዜ፣ ቀን እና የአየር ሁኔታ',
+    },
+    'Emergency & Safety': {
+      AppLanguage.en: 'Emergency & Safety',
+      AppLanguage.om: 'Balaa Hatattamaa fi Nageenya',
+      AppLanguage.am: 'አደጋ እና ደህንነት',
+    },
+    'Sports & Recreation': {
+      AppLanguage.en: 'Sports & Recreation',
+      AppLanguage.om: 'Ispoortii fi Bashannana',
+      AppLanguage.am: 'ስፖርት እና መዝናኛ',
+    },
+    'Directions & Places': {
+      AppLanguage.en: 'Directions & Places',
+      AppLanguage.om: 'Kallattii fi Bakkawwan',
+      AppLanguage.am: 'አቅጣጫዎች እና ቦታዎች',
+    },
+    'Numbers & Measurements': {
+      AppLanguage.en: 'Numbers & Measurements',
+      AppLanguage.om: 'Lakkoofsaa fi Safartuu',
+      AppLanguage.am: 'ቁጥሮች እና መለኪያዎች',
+    },
+    'Communication & Social Media': {
+      AppLanguage.en: 'Communication & Social Media',
+      AppLanguage.om: 'Quunnamtii fi Miidiyaa Hawaasaa',
+      AppLanguage.am: 'ግንኙነት እና ማህበራዊ ሚዲያ',
+    },
+    'Technology': {
+      AppLanguage.en: 'Technology',
+      AppLanguage.om: 'Teknooloojii',
+      AppLanguage.am: 'ቴክኖሎጂ',
+    },
     'More': {
       AppLanguage.en: 'More',
       AppLanguage.om: 'Dabalata',
