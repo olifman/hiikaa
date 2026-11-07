@@ -351,7 +351,7 @@ class _TranslatePageState extends State<TranslatePage> {
             builder: (c) => AlertDialog(
               title: Text(tr(widget.appLanguage, 'about_hiikaa')),
               content: const Text(
-                'Offline translator for English, Afaan Oromoo and Amharic.\n\nVersion 0.3 (beta)\nWorks without internet. Do not rely on them for medical or legal decisions.',
+                'Offline translator for English, Afaan Oromoo and Amharic.\n\nVersion 0.3.0\nWorks without internet. Do not rely on them for medical or legal decisions.',
               ),
               actions: [
                 TextButton(
@@ -2422,7 +2422,7 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 24),
           Center(
             child: Text(
-              'Hiikaa • Version 0.1',
+              'Hiikaa • Version 0.3.0',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

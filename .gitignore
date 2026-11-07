@@ -81,3 +81,7 @@ batch10_review.csv
 *backup*
 batch8_dart_preview.txt
 phrases_source.txt
+lib/*.before_*
+lib/*.bak_*
+lib/*.bak
+lib/*.corrupt_*
