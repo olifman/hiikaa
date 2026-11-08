@@ -229,7 +229,7 @@ class _CategoryPhrasebookPageState extends State<CategoryPhrasebookPage> {
                 },
               )
             : PhraseListPage(
-                title: g.title,
+                title: phraseGroupTitle(widget.appLanguage, g.title),
                 entries: entriesForGroup(g.id),
                 appLanguage: widget.appLanguage,
               ),

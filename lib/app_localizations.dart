@@ -623,12 +623,12 @@ String phraseGroupTitle(AppLanguage language, String title) {
     'Conversation': {
       AppLanguage.en: 'Conversation',
       AppLanguage.om: 'Haasawa',
-      AppLanguage.am: 'ሰላምታ',
+      AppLanguage.am: 'ውይይት',
     },
     'Shopping': {
       AppLanguage.en: 'Shopping',
       AppLanguage.om: 'Bittaa',
-      AppLanguage.am: 'ሰላምታ',
+      AppLanguage.am: 'ግብይት',
     },
     'Food & Drink': {
       AppLanguage.en: 'Food & Drink',
@@ -643,7 +643,7 @@ String phraseGroupTitle(AppLanguage language, String title) {
     'Health': {
       AppLanguage.en: 'Health',
       AppLanguage.om: 'Fayyaa',
-      AppLanguage.am: 'ጉዞ',
+      AppLanguage.am: 'ጤና',
     },
     'Education': {
       AppLanguage.en: 'Education',
@@ -749,6 +749,31 @@ String phraseGroupTitle(AppLanguage language, String title) {
       AppLanguage.en: 'More',
       AppLanguage.om: 'Dabalata',
       AppLanguage.am: 'ሰላምታ',
+    },
+    'Faith & Encouragement': {
+      AppLanguage.en: 'Faith & Encouragement',
+      AppLanguage.om: 'Amantii fi Jajjabeessuu',
+      AppLanguage.am: 'እምነትና ማበረታቻ',
+    },
+    'Politics': {
+      AppLanguage.en: 'Politics',
+      AppLanguage.om: 'Siyaasa',
+      AppLanguage.am: 'ፖለቲካ',
+    },
+    'Law': {
+      AppLanguage.en: 'Law',
+      AppLanguage.om: 'Seera',
+      AppLanguage.am: 'ሕግ',
+    },
+    'Machinery': {
+      AppLanguage.en: 'Machinery',
+      AppLanguage.om: 'Maashinarii',
+      AppLanguage.am: 'ማሽነሪ',
+    },
+    'History': {
+      AppLanguage.en: 'History',
+      AppLanguage.om: 'Seenaa',
+      AppLanguage.am: 'ታሪክ',
     },
   };
 
