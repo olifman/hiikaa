@@ -91,6 +91,7 @@ const List<PhraseGroup> phraseGroups = [
   PhraseGroup('grp_politics', 'Politics', Icons.how_to_vote_outlined, Color(0xFF455A64), ['Politics: Words', 'Politics: Elections', 'Politics: Public Life']),
   PhraseGroup('grp_law', 'Law', Icons.gavel_outlined, Color(0xFF795548), ['Law: Words', 'Law: Courts', 'Law: Police and Crime']),
   PhraseGroup('grp_machinery', 'Machinery', Icons.precision_manufacturing_outlined, Color(0xFFFF6F00), ['Machinery: Words', 'Machinery: Repair', 'Machinery: Farm', 'Machinery: Safety']),
+  PhraseGroup('grp_history', 'History', Icons.history_edu_outlined, Color(0xFF5D4037), ['History: Amazing Facts', 'History: Knowledge', 'History: Love and Wisdom']),
   PhraseGroup('more', 'More', Icons.more_horiz, Color(0xFF757575), []),
 ];
 
