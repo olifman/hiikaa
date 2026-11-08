@@ -87,6 +87,10 @@ const List<PhraseGroup> phraseGroups = [
   PhraseGroup('dirs', 'Directions & Places', Icons.place_outlined, Color(0xFF6D4C41), ['Directions & Places']),
   PhraseGroup('meas', 'Numbers & Measurements', Icons.straighten, Color(0xFF5C6BC0), ['Numbers & Measurements']),
   PhraseGroup('comm', 'Communication & Social Media', Icons.forum_outlined, Color(0xFF7B1FA2), ['Communication & Social Media']),
+  PhraseGroup('grp_faith', 'Faith & Encouragement', Icons.church_outlined, Color(0xFF3F51B5), ['Faith: Blessings', 'Faith: Words', 'Faith: Prayer', 'Faith: Church', 'Faith: Encouragement']),
+  PhraseGroup('grp_politics', 'Politics', Icons.how_to_vote_outlined, Color(0xFF455A64), ['Politics: Words', 'Politics: Elections', 'Politics: Public Life']),
+  PhraseGroup('grp_law', 'Law', Icons.gavel_outlined, Color(0xFF795548), ['Law: Words', 'Law: Courts', 'Law: Police and Crime']),
+  PhraseGroup('grp_machinery', 'Machinery', Icons.precision_manufacturing_outlined, Color(0xFFFF6F00), ['Machinery: Words', 'Machinery: Repair', 'Machinery: Farm', 'Machinery: Safety']),
   PhraseGroup('more', 'More', Icons.more_horiz, Color(0xFF757575), []),
 ];
 
