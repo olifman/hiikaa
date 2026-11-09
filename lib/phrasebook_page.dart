@@ -144,10 +144,17 @@ final List<PhraseEntry> allPhraseEntries = [
     if (r.length >= 4) PhraseEntry(r[0], r[1], r[2], r[3]),
 ];
 
-List<PhraseEntry> entriesForGroup(String id) => [
-      for (final e in allPhraseEntries)
-        if ((_catToGroup[e.category.toLowerCase()] ?? 'more') == id) e,
-    ];
+final Map<String, List<PhraseEntry>> _entriesByGroup = () {
+  final m = <String, List<PhraseEntry>>{};
+  for (final e in allPhraseEntries) {
+    final id = _catToGroup[e.category.toLowerCase()] ?? 'more';
+    (m[id] ??= <PhraseEntry>[]).add(e);
+  }
+  return m;
+}();
+
+List<PhraseEntry> entriesForGroup(String id) =>
+    _entriesByGroup[id] ?? <PhraseEntry>[];
 
 List<PhraseEntry> _filter(List<PhraseEntry> src, String q) {
   final s = q.trim().toLowerCase();

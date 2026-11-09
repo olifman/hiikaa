@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -56,10 +57,19 @@ class Db {
       },
     );
 
-    await _ensureSeedPhrases(db);
+    await _seedIfNeeded(db);
     await _ensureNotes(db);
     _db = db;
     return db;
+  }
+
+  static Future<void> _seedIfNeeded(Database db) async {
+    // Phrase haaraa yoo dabalame qofa seed godha (yeroo banuu hundaatti miti).
+    final prefs = await SharedPreferences.getInstance();
+    final sig = 'v23_${seedPhrases.length}';
+    if (prefs.getString('hiikaa_seed_sig') == sig) return;
+    await _ensureSeedPhrases(db);
+    await prefs.setString('hiikaa_seed_sig', sig);
   }
 
   static Future<void> _ensureSeedPhrases(Database db) async {
