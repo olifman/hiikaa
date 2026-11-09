@@ -1776,7 +1776,11 @@ class _NotesPageState extends State<NotesPage> {
                                   color: Colors.white.withValues(alpha: 0.75),
                                   borderRadius: BorderRadius.circular(15),
                                 ),
-                                child: Icon(_noteIconFor(note['icon'] as String?), size: 24, color: const Color(0xFF176B48)),
+                                child: Icon(
+                                  _noteIconFor(note['icon'] as String?),
+                                  size: 24,
+                                  color: const Color(0xFF176B48),
+                                ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -1946,7 +1950,9 @@ class _NoteEditorState extends State<NoteEditor> {
     category = _noteCategories.contains(note?['category'])
         ? note!['category'] as String
         : 'Dhuunfaa';
-    icon = _noteIconData.containsKey(note?['icon']) ? note!['icon'] as String : 'note';
+    icon = _noteIconData.containsKey(note?['icon'])
+        ? note!['icon'] as String
+        : 'note';
     color = note?['color'] as int? ?? _noteColors[0];
     fontSize = (note?['font_size'] as num?)?.toDouble() ?? 16;
     favorite = (note?['is_favorite'] as int? ?? 0) == 1;
@@ -1998,309 +2004,327 @@ class _NoteEditorState extends State<NoteEditor> {
           color: Color(0xFFFAFBFF),
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 42,
-                  height: 4,
+        child: Material(
+          type: MaterialType.transparency,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 42,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  tr(
+                    widget.appLanguage,
+                    widget.note == null ? 'new_note' : 'edit_note',
+                  ),
+                  style: const TextStyle(
+                    fontSize: 23,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: titleController,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                    labelText: tr(widget.appLanguage, 'title'),
+                    prefixIcon: const Icon(Icons.title_rounded),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  tr(widget.appLanguage, 'content'),
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF26352D),
+                  ),
+                ),
+                const SizedBox(height: 9),
+                Container(
                   decoration: BoxDecoration(
-                    color: Colors.black26,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 18),
-              Text(
-                tr(
-                  widget.appLanguage,
-                  widget.note == null ? 'new_note' : 'edit_note',
-                ),
-                style: const TextStyle(
-                  fontSize: 23,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: titleController,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
-                  labelText: tr(widget.appLanguage, 'title'),
-                  prefixIcon: const Icon(Icons.title_rounded),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                tr(widget.appLanguage, 'content'),
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF26352D),
-                ),
-              ),
-              const SizedBox(height: 9),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFFEF8),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFFE8E1CF)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.035),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        TextButton.icon(
-                          onPressed: () =>
-                              setState(() => showFormat = !showFormat),
-                          icon: Icon(
-                            showFormat
-                                ? Icons.keyboard_arrow_up_rounded
-                                : Icons.text_format_rounded,
-                          ),
-                          label: const Text('Aa'),
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          visualDensity: VisualDensity.compact,
-                          icon: const Icon(Icons.undo_rounded),
-                          onPressed: () => contentController.undo(),
-                        ),
-                        IconButton(
-                          visualDensity: VisualDensity.compact,
-                          icon: const Icon(Icons.redo_rounded),
-                          onPressed: () => contentController.redo(),
-                        ),
-                      ],
-                    ),
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 200),
-                      alignment: Alignment.topCenter,
-                      child: showFormat
-                          ? QuillSimpleToolbar(
-                              controller: contentController,
-                              config: const QuillSimpleToolbarConfig(
-                                multiRowsDisplay: false,
-                                showAlignmentButtons: true,
-                                showFontSize: true,
-                                showColorButton: true,
-                                showBackgroundColorButton: true,
-                              ),
-                            )
-                          : const SizedBox(width: double.infinity),
-                    ),const Divider(height: 1),
-                    SizedBox(
-                      height: 280,
-                      child: QuillEditor.basic(
-                        controller: contentController,
-                        config: QuillEditorConfig(
-                          scrollable: true,
-                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                          placeholder: tr(widget.appLanguage, 'write_here'),
-                        ),
+                    color: const Color(0xFFFFFEF8),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFE8E1CF)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.035),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 15),
-              Text(
-                tr(widget.appLanguage, 'category'),
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                initialValue: category,
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  for (final item in _noteCategories)
-                    DropdownMenuItem(
-                      value: item,
-                      child: Text(noteCategoryTitle(widget.appLanguage, item)),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) setState(() => category = value);
-                },
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: customCategoryController,
-                decoration: InputDecoration(
-                  labelText: tr(widget.appLanguage, 'custom_category'),
-                  hintText: tr(widget.appLanguage, 'custom_category_hint'),
-                  prefixIcon: Icon(Icons.create_new_folder_outlined),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 15),
-              Text(
-                tr(widget.appLanguage, 'icon'),
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final item in _noteIcons)
-                    InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () => setState(() => icon = item),
-                      child: Container(
-                        width: 43,
-                        height: 43,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: icon == item
-                              ? const Color(0xFFD9F0E4)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: icon == item
-                                ? const Color(0xFF238357)
-                                : const Color(0xFFE0E5EC),
-                            width: icon == item ? 2 : 1,
-                          ),
-                        ),
-                        child: Icon(_noteIconFor(item), size: 22, color: icon == item ? const Color(0xFF176B48) : const Color(0xFF465166)),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                tr(widget.appLanguage, 'color'),
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 10,
-                children: [
-                  for (final value in _noteColors)
-                    InkWell(
-                      onTap: () => setState(() => color = value),
-                      borderRadius: BorderRadius.circular(30),
-                      child: Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          color: Color(value),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: color == value
-                                ? const Color(0xFF176B48)
-                                : Colors.black12,
-                            width: color == value ? 3 : 1,
-                          ),
-                        ),
-                        child: color == value
-                            ? const Icon(Icons.check, size: 17)
-                            : null,
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const Icon(Icons.format_size_rounded),
-                  const SizedBox(width: 8),
-                  Text(tr(widget.appLanguage, 'font_size')),
-                  Expanded(
-                    child: Slider(
-                      min: 14,
-                      max: 24,
-                      divisions: 10,
-                      value: fontSize,
-                      label: fontSize.round().toString(),
-                      onChanged: (value) => setState(() => fontSize = value),
-                    ),
+                    ],
                   ),
-                  Text(fontSize.round().toString()),
-                ],
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                value: favorite,
-                onChanged: (value) => setState(() => favorite = value),
-                secondary: const Icon(Icons.star_rounded, color: Colors.amber),
-                title: Text(tr(widget.appLanguage, 'favorite')),
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                value: isPrivate,
-                onChanged: (value) async {
-                  if (!value && isPrivate) {
-                    if (!mounted) return;
-                    final confirmed = await showDialog<bool>(
-                      context: context,
-                      builder: (dialogContext) => AlertDialog(
-                        title: Text(
-                          tr(widget.appLanguage, 'security_warning_title'),
-                        ),
-                        content: Text(
-                          tr(widget.appLanguage, 'security_warning_message'),
-                        ),
-                        actions: [
-                          TextButton(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          TextButton.icon(
                             onPressed: () =>
-                                Navigator.pop(dialogContext, false),
-                            child: Text(tr(widget.appLanguage, 'cancel')),
-                          ),
-                          FilledButton(
-                            onPressed: () => Navigator.pop(dialogContext, true),
-                            child: Text(
-                              tr(widget.appLanguage, 'confirm_change'),
+                                setState(() => showFormat = !showFormat),
+                            icon: Icon(
+                              showFormat
+                                  ? Icons.keyboard_arrow_up_rounded
+                                  : Icons.text_format_rounded,
                             ),
+                            label: const Text('Aa'),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            icon: const Icon(Icons.undo_rounded),
+                            onPressed: () => contentController.undo(),
+                          ),
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            icon: const Icon(Icons.redo_rounded),
+                            onPressed: () => contentController.redo(),
                           ),
                         ],
                       ),
-                    );
-                    if (!mounted || confirmed != true) return;
-                  }
-                  setState(() => isPrivate = value);
-                },
-                secondary: const Icon(Icons.lock_outline_rounded),
-                title: Text(tr(widget.appLanguage, 'private_note')),
-                subtitle: Text(tr(widget.appLanguage, 'private_note_subtitle')),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: _save,
-                  icon: const Icon(Icons.check_rounded),
-                  label: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 13),
-                    child: Text(tr(widget.appLanguage, 'save')),
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 200),
+                        alignment: Alignment.topCenter,
+                        child: showFormat
+                            ? QuillSimpleToolbar(
+                                controller: contentController,
+                                config: const QuillSimpleToolbarConfig(
+                                  multiRowsDisplay: false,
+                                  showAlignmentButtons: true,
+                                  showFontSize: true,
+                                  showColorButton: true,
+                                  showBackgroundColorButton: true,
+                                ),
+                              )
+                            : const SizedBox(width: double.infinity),
+                      ),
+                      const Divider(height: 1),
+                      SizedBox(
+                        height: 280,
+                        child: QuillEditor.basic(
+                          controller: contentController,
+                          config: QuillEditorConfig(
+                            scrollable: true,
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                            placeholder: tr(widget.appLanguage, 'write_here'),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 15),
+                Text(
+                  tr(widget.appLanguage, 'category'),
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 6),
+                DropdownButtonFormField<String>(
+                  initialValue: category,
+                  isExpanded: true,
+                  decoration: const InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    for (final item in _noteCategories)
+                      DropdownMenuItem(
+                        value: item,
+                        child: Text(
+                          noteCategoryTitle(widget.appLanguage, item),
+                        ),
+                      ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) setState(() => category = value);
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: customCategoryController,
+                  decoration: InputDecoration(
+                    labelText: tr(widget.appLanguage, 'custom_category'),
+                    hintText: tr(widget.appLanguage, 'custom_category_hint'),
+                    prefixIcon: Icon(Icons.create_new_folder_outlined),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  tr(widget.appLanguage, 'icon'),
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final item in _noteIcons)
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => setState(() => icon = item),
+                        child: Container(
+                          width: 43,
+                          height: 43,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: icon == item
+                                ? const Color(0xFFD9F0E4)
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: icon == item
+                                  ? const Color(0xFF238357)
+                                  : const Color(0xFFE0E5EC),
+                              width: icon == item ? 2 : 1,
+                            ),
+                          ),
+                          child: Icon(
+                            _noteIconFor(item),
+                            size: 22,
+                            color: icon == item
+                                ? const Color(0xFF176B48)
+                                : const Color(0xFF465166),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  tr(widget.appLanguage, 'color'),
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 10,
+                  children: [
+                    for (final value in _noteColors)
+                      InkWell(
+                        onTap: () => setState(() => color = value),
+                        borderRadius: BorderRadius.circular(30),
+                        child: Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: Color(value),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: color == value
+                                  ? const Color(0xFF176B48)
+                                  : Colors.black12,
+                              width: color == value ? 3 : 1,
+                            ),
+                          ),
+                          child: color == value
+                              ? const Icon(Icons.check, size: 17)
+                              : null,
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Icon(Icons.format_size_rounded),
+                    const SizedBox(width: 8),
+                    Text(tr(widget.appLanguage, 'font_size')),
+                    Expanded(
+                      child: Slider(
+                        min: 14,
+                        max: 24,
+                        divisions: 10,
+                        value: fontSize,
+                        label: fontSize.round().toString(),
+                        onChanged: (value) => setState(() => fontSize = value),
+                      ),
+                    ),
+                    Text(fontSize.round().toString()),
+                  ],
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: favorite,
+                  onChanged: (value) => setState(() => favorite = value),
+                  secondary: const Icon(
+                    Icons.star_rounded,
+                    color: Colors.amber,
+                  ),
+                  title: Text(tr(widget.appLanguage, 'favorite')),
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: isPrivate,
+                  onChanged: (value) async {
+                    if (!value && isPrivate) {
+                      if (!mounted) return;
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: Text(
+                            tr(widget.appLanguage, 'security_warning_title'),
+                          ),
+                          content: Text(
+                            tr(widget.appLanguage, 'security_warning_message'),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.pop(dialogContext, false),
+                              child: Text(tr(widget.appLanguage, 'cancel')),
+                            ),
+                            FilledButton(
+                              onPressed: () =>
+                                  Navigator.pop(dialogContext, true),
+                              child: Text(
+                                tr(widget.appLanguage, 'confirm_change'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (!mounted || confirmed != true) return;
+                    }
+                    setState(() => isPrivate = value);
+                  },
+                  secondary: const Icon(Icons.lock_outline_rounded),
+                  title: Text(tr(widget.appLanguage, 'private_note')),
+                  subtitle: Text(
+                    tr(widget.appLanguage, 'private_note_subtitle'),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: _save,
+                    icon: const Icon(Icons.check_rounded),
+                    label: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 13),
+                      child: Text(tr(widget.appLanguage, 'save')),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
