@@ -27,6 +27,16 @@ const Map<String, Map<AppLanguage, String>> _translations = {
     AppLanguage.om: 'Yaadannoo koo',
     AppLanguage.am: 'ማስታወሻዎቼ',
   },
+  'notes_banner_title': {
+    AppLanguage.en: 'Save your ideas.',
+    AppLanguage.om: 'Yaada kee kuusi.',
+    AppLanguage.am: '\u1203\u1233\u1265\u1205\u1295 \u12A0\u1235\u1240\u121D\u1325\u1362',
+  },
+  'notes_banner_subtitle': {
+    AppLanguage.en: 'Your learning, notes and plans in one place.',
+    AppLanguage.om: 'Barumsa, yaadannoo fi karoora kee bakka tokko.',
+    AppLanguage.am: '\u1275\u121D\u1205\u122D\u1275\u1205\u1295\u1363 \u121B\u1235\u1273\u12C8\u123B\u1205\u1295\u1293 \u12D5\u1245\u12F5\u1205\u1295 \u1260\u12A0\u1295\u12F5 \u1266\u1273\u1362',
+  },
   'settings': {
     AppLanguage.en: 'Settings',
     AppLanguage.om: 'Qindaa’ina',

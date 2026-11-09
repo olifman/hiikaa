@@ -1108,17 +1108,33 @@ const _noteCategories = <String>[
 ];
 
 const _noteIcons = <String>[
-  '??',
-  '?',
-  '??',
-  '??',
-  '??',
-  '??',
-  '??',
-  '?',
-  '??',
-  '??',
+  'note',
+  'star',
+  'heart',
+  'idea',
+  'book',
+  'work',
+  'home',
+  'music',
+  'travel',
+  'food',
 ];
+
+const _noteIconData = <String, IconData>{
+  'note': Icons.sticky_note_2_rounded,
+  'star': Icons.star_rounded,
+  'heart': Icons.favorite_rounded,
+  'idea': Icons.lightbulb_rounded,
+  'book': Icons.menu_book_rounded,
+  'work': Icons.work_rounded,
+  'home': Icons.home_rounded,
+  'music': Icons.music_note_rounded,
+  'travel': Icons.flight_rounded,
+  'food': Icons.restaurant_rounded,
+};
+
+IconData _noteIconFor(String? key) =>
+    _noteIconData[key] ?? Icons.sticky_note_2_rounded;
 
 const _noteColors = <int>[
   0xFFE8F5E9,
@@ -1562,6 +1578,8 @@ class _NotesPageState extends State<NotesPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openEditor(),
+        backgroundColor: const Color(0xFF176B48),
+        foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
         label: Text(tr(widget.appLanguage, 'new_note')),
       ),
@@ -1579,28 +1597,35 @@ class _NotesPageState extends State<NotesPage> {
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF176B48).withValues(alpha: 0.28),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.auto_awesome_rounded,
                     color: Colors.white,
                     size: 28,
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text(
-                    'Yaada kee kuusi.',
-                    style: TextStyle(
+                    tr(widget.appLanguage, 'notes_banner_title'),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
                       fontSize: 23,
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Text(
-                    'Barumsa, yaadannoo fi karoora kee bakka tokko.',
-                    style: TextStyle(color: Colors.white, height: 1.4),
+                    tr(widget.appLanguage, 'notes_banner_subtitle'),
+                    style: const TextStyle(color: Colors.white, height: 1.4),
                   ),
                 ],
               ),
@@ -1643,6 +1668,16 @@ class _NotesPageState extends State<NotesPage> {
                             : noteCategoryTitle(widget.appLanguage, item),
                       ),
                       selected: category == item,
+                      showCheckmark: false,
+                      selectedColor: const Color(0xFFD9F0E4),
+                      labelStyle: TextStyle(
+                        fontWeight: category == item
+                            ? FontWeight.w800
+                            : FontWeight.w500,
+                        color: category == item
+                            ? const Color(0xFF176B48)
+                            : null,
+                      ),
                       onSelected: (_) => setState(() => category = item),
                     ),
                   ),
@@ -1715,7 +1750,8 @@ class _NotesPageState extends State<NotesPage> {
                         '${updated.day}/${updated.month}/${updated.year}';
 
                     return Card(
-                      elevation: 0,
+                      elevation: 2,
+                      shadowColor: Colors.black.withValues(alpha: 0.12),
                       color: color,
                       margin: const EdgeInsets.only(bottom: 12),
                       shape: RoundedRectangleBorder(
@@ -1740,10 +1776,7 @@ class _NotesPageState extends State<NotesPage> {
                                   color: Colors.white.withValues(alpha: 0.75),
                                   borderRadius: BorderRadius.circular(15),
                                 ),
-                                child: Text(
-                                  note['icon'] as String,
-                                  style: const TextStyle(fontSize: 23),
-                                ),
+                                child: Icon(_noteIconFor(note['icon'] as String?), size: 24, color: const Color(0xFF176B48)),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -1773,7 +1806,7 @@ class _NotesPageState extends State<NotesPage> {
                                     ),
                                     const SizedBox(height: 9),
                                     Text(
-                                      '${note['category']}  ?  $date',
+                                      '${note['category']}  \u00B7  $date',
                                       style: const TextStyle(
                                         fontSize: 11,
                                         color: Color(0xFF667085),
@@ -1782,6 +1815,15 @@ class _NotesPageState extends State<NotesPage> {
                                     ),
                                   ],
                                 ),
+                              ),
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                icon: const Icon(
+                                  Icons.edit_rounded,
+                                  size: 20,
+                                  color: Color(0xFF176B48),
+                                ),
+                                onPressed: () => _openEditor(note),
                               ),
                               PopupMenuButton<String>(
                                 onSelected: (value) async {
@@ -1857,6 +1899,7 @@ class _NoteEditorState extends State<NoteEditor> {
   late String icon;
   late int color;
   late double fontSize;
+  bool showFormat = false;
   late bool favorite;
   late bool isPrivate;
 
@@ -1903,7 +1946,7 @@ class _NoteEditorState extends State<NoteEditor> {
     category = _noteCategories.contains(note?['category'])
         ? note!['category'] as String
         : 'Dhuunfaa';
-    icon = note?['icon'] as String? ?? '??';
+    icon = _noteIconData.containsKey(note?['icon']) ? note!['icon'] as String : 'note';
     color = note?['color'] as int? ?? _noteColors[0];
     fontSize = (note?['font_size'] as num?)?.toDouble() ?? 16;
     favorite = (note?['is_favorite'] as int? ?? 0) == 1;
@@ -2021,17 +2064,47 @@ class _NoteEditorState extends State<NoteEditor> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    QuillSimpleToolbar(
-                      controller: contentController,
-                      config: const QuillSimpleToolbarConfig(
-                        multiRowsDisplay: true,
-                        showAlignmentButtons: true,
-                        showFontSize: true,
-                        showColorButton: true,
-                        showBackgroundColorButton: true,
-                      ),
+                    Row(
+                      children: [
+                        TextButton.icon(
+                          onPressed: () =>
+                              setState(() => showFormat = !showFormat),
+                          icon: Icon(
+                            showFormat
+                                ? Icons.keyboard_arrow_up_rounded
+                                : Icons.text_format_rounded,
+                          ),
+                          label: const Text('Aa'),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(Icons.undo_rounded),
+                          onPressed: () => contentController.undo(),
+                        ),
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(Icons.redo_rounded),
+                          onPressed: () => contentController.redo(),
+                        ),
+                      ],
                     ),
-                    const Divider(height: 1),
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 200),
+                      alignment: Alignment.topCenter,
+                      child: showFormat
+                          ? QuillSimpleToolbar(
+                              controller: contentController,
+                              config: const QuillSimpleToolbarConfig(
+                                multiRowsDisplay: false,
+                                showAlignmentButtons: true,
+                                showFontSize: true,
+                                showColorButton: true,
+                                showBackgroundColorButton: true,
+                              ),
+                            )
+                          : const SizedBox(width: double.infinity),
+                    ),const Divider(height: 1),
                     SizedBox(
                       height: 280,
                       child: QuillEditor.basic(
@@ -2113,7 +2186,7 @@ class _NoteEditorState extends State<NoteEditor> {
                             width: icon == item ? 2 : 1,
                           ),
                         ),
-                        child: Text(item, style: const TextStyle(fontSize: 21)),
+                        child: Icon(_noteIconFor(item), size: 22, color: icon == item ? const Color(0xFF176B48) : const Color(0xFF465166)),
                       ),
                     ),
                 ],
